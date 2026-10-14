@@ -1,0 +1,56 @@
+@model FitMind.ViewModels.UserFoodItemEditVm
+@using FitMind.Models
+@{
+    ViewData["Title"]="Создать продукт или рецепт";
+    var categories=(IEnumerable<Category>)ViewBag.Categories;
+}
+<div class="page-head">
+    <div>
+        <a asp-action="Index" class="text-link">← Питание и вода</a>
+        <h1>Создать продукт или рецепт</h1>
+        <p>Личная карточка доступна только тебе.</p>
+    </div>
+</div>
+<form method="post" enctype="multipart/form-data" class="form-card">
+    <input asp-for="Image" type="hidden"/>
+    <div asp-validation-summary="All" class="validation">
+    </div>
+    <div class="form-grid two">
+        <label>Название<input asp-for="Name"/>
+    </label>
+    <label>Вид<select asp-for="Kind">
+    <option value="Product">Продукт</option>
+    <option value="Recipe">Рецепт</option>
+</select>
+</label>
+<label>Категория<select asp-for="CategoryId">
+<option value="">Выберите</option>
+@foreach(var c in categories){
+    <option value="@c.Id">@c.Name</option>
+}
+</select>
+</label>
+<label>Своя картинка (необязательно)<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+</div>
+<div class="form-grid four">
+    <label>Ккал/100 г<input asp-for="Calories" type="number" step="0.1"/>
+</label>
+<label>Белки<input asp-for="Protein" type="number" step="0.1"/>
+</label>
+<label>Жиры<input asp-for="Fat" type="number" step="0.1"/>
+</label>
+<label>Углеводы<input asp-for="Carbs" type="number" step="0.1"/>
+</label>
+</div>
+<label>Описание<textarea asp-for="Description"></textarea></label>
+<div data-recipe-fields>
+    <label>Приготовление<textarea asp-for="Instructions"></textarea></label>
+    <label>Время приготовления, мин<input asp-for="PreparationMinutes" type="number"/>
+</label>
+</div>
+<div class="form-actions">
+    <a asp-action="Index" class="ghost">Отмена</a>
+    <button class="primary">Сохранить</button>
+</div>
+</form>

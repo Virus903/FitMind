@@ -1,0 +1,29 @@
+@model FitMind.Controllers.PersonalEditVm
+@{
+    ViewData["Title"]="Редактировать запись";
+}
+<div class="page-head">
+    <div>
+        <a asp-controller="@Model.Back" asp-action="Index" class="back">← Назад</a>
+        <h1>Редактировать запись</h1>
+    </div>
+</div>
+<form asp-action="Edit" method="post" class="form-card">
+    <input asp-for="Kind" type="hidden"/>
+    <input asp-for="Id" type="hidden"/>
+    <div asp-validation-summary="All" class="validation">
+    </div>
+    @foreach(var f in Model.Fields){
+        <label>@f.Label @if(f.Type=="textarea"){<textarea name="Values[@f.Key]" rows="5">@Model.Values.GetValueOrDefault(f.Key)</textarea>}else{<input type="@f.Type" name="Values[@f.Key]" value="@Model.Values.GetValueOrDefault(f.Key)" step="any"/>}
+    </label>
+}
+<div class="form-actions">
+    <a asp-controller="@Model.Back" asp-action="Index" class="ghost">Отмена</a>
+    <button class="primary">Сохранить</button>
+</div>
+</form>
+<form asp-action="Delete" method="post" class="form-card" data-confirm="Удалить эту запись? Это действие нельзя отменить.">
+    <input asp-for="Kind" type="hidden"/>
+    <input asp-for="Id" type="hidden"/>
+    <button class="ghost">Удалить запись</button>
+</form>

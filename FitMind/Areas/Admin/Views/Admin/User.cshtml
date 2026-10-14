@@ -1,0 +1,34 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "Пользователь";
+    var roles = (IList<string>)ViewBag.Roles;
+    var locked = Model.LockoutEnd > DateTimeOffset.UtcNow;
+}
+<section class="admin-page-head">
+    <div>
+        <a class="back-link" asp-action="Users">← Пользователи</a>
+        <h1>@Model.Email</h1>
+        <p>Идентификатор: @Model.Id</p>
+    </div>
+    <span class="pill">@(locked ? "Заблокирован" : "Активен")</span>
+</section>
+<section class="admin-panel admin-detail">
+    <dl>
+        <dt>Email подтверждён</dt>
+        <dd>@(Model.EmailConfirmed ? "Да" : "Нет")</dd>
+        <dt>Роли</dt>
+        <dd>@(roles.Any() ? string.Join(", ", roles) : "Нет")</dd>
+        <dt>Неудачных входов</dt>
+        <dd>@Model.AccessFailedCount</dd>
+    </dl>
+    <div class="form-actions">
+        <form asp-action="ToggleLock" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button class="@(locked ? "ghost" : "danger")">@(locked ? "Разблокировать" : "Заблокировать")</button>
+        </form>
+        <form asp-action="ToggleAdminRole" method="post">
+            <input type="hidden" name="id" value="@Model.Id"/>
+            <button class="ghost">@(roles.Contains("Администратор")?"Снять роль администратора":"Назначить администратором")</button>
+        </form>
+    </div>
+</section>

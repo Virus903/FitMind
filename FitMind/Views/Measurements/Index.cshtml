@@ -1,0 +1,102 @@
+@model MeasurementsPageVm
+@using System.Globalization
+@{
+    ViewData["Title"]="Мои замеры";
+    var ru=new CultureInfo("ru-RU");
+    var mainTypes=Model.Types.Where(x=>x.IsMain).Take(6).ToList();
+}
+<section class="personal-page-head">
+    <div>
+        <h1>Мои замеры</h1>
+        <p>Сохраняй замеры и следи за изменениями своего тела.</p>
+    </div>
+</section>
+<div class="measurements-hero-grid">
+    <section class="panel measurement-add-card">
+        <div class="measurement-title">
+            <span>＋</span>
+            <div>
+                <h2>Добавить замер</h2>
+                <p>Выбери показатель и введи значение.</p>
+            </div>
+        </div>
+        <div asp-validation-summary="All" class="validation">
+        </div>
+        <form asp-action="Add" method="post" class="form-shell">
+            <div class="form-grid three">
+                <label>Тип замера<select name="typeId" required>
+                @foreach(var t in Model.Types){
+                    <option value="@t.Id">@t.Name</option>
+                }
+            </select>
+        </label>
+        <label>Значение<input name="value" type="number" step="0.1" min="0.1" required placeholder="0,0"/>
+    </label>
+    <label>Дата<input name="date" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+</label>
+</div>
+<label>Комментарий <small>Необязательно</small><textarea name="comment" rows="3" placeholder="Например, утром натощак"></textarea></label>
+<div class="form-actions">
+    <button class="primary">＋ Сохранить замер</button>
+</div>
+</form>
+</section>
+<aside class="panel measurement-latest">
+    <div class="measurement-title">
+        <span>▥</span>
+        <h2>Последние значения</h2>
+    </div>
+    <div class="measurement-latest-grid">
+        @foreach(var t in mainTypes){var latest=Model.History.Where(x=>x.TypeId==t.Id).OrderByDescending(x=>x.DateTime).FirstOrDefault();<div>
+        <span class="measurement-mini-icon">○</span>
+        <p>@t.Name</p>
+        <strong>@(latest?.Value.ToString("0.#")??"—")</strong>
+        <small>@t.Unit</small>
+    </div>
+}
+</div>
+<p class="measurement-hint">Значения появятся после первого замера.</p>
+</aside>
+</div>
+<section class="panel measurements-history">
+    <div class="panel-head">
+        <div>
+            <h2>▤ История замеров <span class="count-badge">@Model.History.Count записей</span>
+        </h2>
+        <p>Все твои замеры в хронологическом порядке.</p>
+    </div>
+    <a asp-action="Index" class="icon-button" title="Обновить">↻</a>
+</div>
+@if(!Model.History.Any()){
+    <div class="measurements-empty">
+        <span>⌁</span>
+        <h3>Здесь начнётся твой прогресс</h3>
+        <p>Добавь первый замер — и отслеживай изменения со временем.</p>
+    </div>
+}else{<div class="measurement-table">
+<div class="measurement-table-head">
+    <span>Дата</span>
+    <span>Параметр</span>
+    <span>Значение</span>
+    <span>Комментарий</span>
+    <span>
+    </span>
+    <span>
+    </span>
+</div>
+@foreach(var x in Model.History){
+    <div class="measurement-table-row">
+        <span>@x.DateTime.ToString("d MMM yyyy",ru)</span>
+        <b>@x.Type?.Name</b>
+        <strong>@x.Value.ToString("0.#") @x.Type?.Unit</strong>
+        <span>@x.Comment</span>
+        <a class="ghost small" asp-controller="PersonalItems" asp-action="Edit" asp-route-kind="measurement" asp-route-id="@x.Id">Изменить</a>
+        <form asp-action="Delete" method="post">
+            <input type="hidden" name="id" value="@x.Id"/>
+            <button class="danger-link">Удалить</button>
+        </form>
+    </div>
+}
+</div>
+}
+</section>

@@ -1,0 +1,53 @@
+@model UserExerciseEditVm
+@{
+    var edit=Model.Id.HasValue;
+    ViewData["Title"]=edit?"Изменить упражнение":"Создать упражнение";
+}
+<a asp-action="Index" class="back">← Назад</a>
+<div class="page-head">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Добавь своё упражнение и опиши технику выполнения.</p>
+    </div>
+</div>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form asp-action="CreateExercise" method="post" enctype="multipart/form-data" class="program-builder-grid">
+    <input asp-for="Id" type="hidden"/>
+    <section class="panel form-shell">
+        <div class="form-grid two">
+            <label>Название<input asp-for="Name" placeholder="Жим гантелей лёжа"/>
+        </label>
+        <label>Группа мышц<input asp-for="MuscleGroup" placeholder="Грудь"/>
+    </label>
+</div>
+<div class="form-grid two">
+    <label>Оборудование<input asp-for="Equipment" placeholder="Гантели"/>
+</label>
+<label>Сложность<select asp-for="Difficulty">
+<option>Новичок</option>
+<option>Средний</option>
+<option>Продвинутый</option>
+</select>
+</label>
+</div>
+<label>Краткое описание<textarea asp-for="Description" rows="3"></textarea></label>
+<label>Пошаговая техника<textarea asp-for="Technique" rows="7" placeholder="1. Исходное положение...&#10;2. Выполнение движения...&#10;3. Возврат в исходное положение..."></textarea></label>
+<input asp-for="Image" type="hidden"/>
+<label>Картинка (PNG, JPEG, WebP до 2 МБ, необязательно)<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+<div class="form-actions">
+    <a asp-action="Index" class="ghost">Отмена</a>
+    <button class="primary">@(edit?"Сохранить":"+ Создать упражнение")</button>
+</div>
+</section>
+<aside class="panel builder-side">
+    <h2>Карточка упражнения</h2>
+    <div class="preview-card">
+        <catalog-placeholder kind="Exercises" custom-src="@Model.Image" alt="Обложка упражнения">
+        </catalog-placeholder>
+        <b>Твоё упражнение</b>
+        <span>После сохранения появится в блоке «Мои упражнения» с отметкой «Создано мной».</span>
+    </div>
+</aside>
+</form>

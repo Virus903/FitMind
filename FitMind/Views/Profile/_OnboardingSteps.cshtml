@@ -1,0 +1,12 @@
+@model int
+<div class="onboarding-v04-steps" aria-label="Прогресс заполнения анкеты">
+    @foreach (var step in new[] { (N:1, T:"Профиль"), (N:2, T:"Цель"), (N:3, T:"Тренировки") })
+    {
+    <div class="onboarding-step @(Model == step.N ? "active" : Model > step.N ? "done" : "")">
+    <span>@step.N</span>
+    <b>@step.T</b>
+</div>
+@if (step.N < 3) { <i class="onboarding-step-line @(Model > step.N ? "done" : "")">
+</i> }
+}
+</div>

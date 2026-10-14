@@ -1,0 +1,58 @@
+@model Supplement
+@{
+    ViewData["Title"]=Model.Name;
+}
+<a asp-action="Index" class="back">← Назад к добавкам</a>
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="Supplements" alt="Иллюстрация раздела «Добавки»">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">@Model.Category?.Name</span>
+        <h1>@Model.Name</h1>
+        <p>@Model.ShortDescription</p>
+        <div class="info-grid">
+            <div>
+                <small>Форма</small>
+                <b>@(Model.Form??"—")</b>
+            </div>
+            <div>
+                <small>Порция</small>
+                <b>@(Model.StandardDosage??"—")</b>
+            </div>
+            <div>
+                <small>Когда</small>
+                <b>@(Model.BestTime??"—")</b>
+            </div>
+        </div>
+        <form asp-controller="MySupplements" asp-action="AddFromBase" method="post">
+            <input type="hidden" name="id" value="@Model.Id"/>
+            <button class="primary">Добавить в мои добавки</button>
+        </form>
+    </div>
+</div>
+<div class="detail-sections">
+    <section class="detail-card">
+        <h2>Для чего используется</h2>
+        <p class="preline">@Model.Purpose</p>
+    </section>
+    <section class="detail-card">
+        <h2>Как принимают</h2>
+        <p class="preline">@Model.Usage</p>
+    </section>
+    <section class="detail-card">
+        <h2>Плюсы</h2>
+        <p class="preline">@Model.Benefits</p>
+    </section>
+    <section class="detail-card">
+        <h2>Минусы</h2>
+        <p class="preline">@Model.Drawbacks</p>
+    </section>
+    <section class="detail-card">
+        <h2>Предупреждения</h2>
+        <p class="preline">@Model.Warning</p>
+    </section>
+    <section class="detail-card">
+        <h2>FAQ</h2>
+        <p class="preline">@Model.Faq</p>
+    </section>
+</div>

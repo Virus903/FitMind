@@ -1,0 +1,200 @@
+@model MyDayPageVm
+@using FitMind.Models
+@using System.Globalization
+@{
+    ViewData["Title"]="Мой день";
+    var ru=new CultureInfo("ru-RU");
+    var done=Model.Items.Count(x=>x.Status==DayEntryStatus.Done);
+    var calories=Model.Items.Where(x=>x.Type==ProgramItemType.Meal&&x.Status==DayEntryStatus.Done).Sum(x=>x.FoodItems.Sum(i=>(i.CaloriesPer100??i.Product?.Calories??0)*i.Grams/100));
+    var water=Model.Items.Where(x=>x.Type==ProgramItemType.Water&&x.Status==DayEntryStatus.Done).Sum(x=>x.Value??0);
+    var sleep=Model.Items.Where(x=>x.Type==ProgramItemType.Bedtime&&x.End.HasValue).Sum(x=>Math.Max(0,(x.End!.Value-x.Start).TotalHours));
+    var workouts=Model.Items.Count(x=>x.Type==ProgramItemType.Workout);
+    var recovery=Model.Items.Count(x=>x.Type==ProgramItemType.Procedure);
+    var supplements=Model.Items.Count(x=>x.Type==ProgramItemType.Supplement);
+    var measurementsText="Открыть";
+}
+<section class="my-day-hero" aria-labelledby="my-day-title">
+    <div class="my-day-hero__copy">
+        <span class="eyebrow">Мой день</span>
+        <h1 id="my-day-title">Мой день</h1>
+        <p>Планы, привычки и записи — всё под рукой.</p>
+    </div>
+    <div class="my-day-hero__actions">
+        <nav class="my-day-date">
+            <a class="icon-button" asp-route-date="@Model.Date.AddDays(-1).ToString("yyyy-MM-dd")">←</a>
+            <div>
+                <span>Выбранный день</span>
+                <b>@Model.Date.ToString("d MMMM yyyy",ru)</b>
+            </div>
+            <a class="icon-button" asp-route-date="@Model.Date.AddDays(1).ToString("yyyy-MM-dd")">→</a>
+        </nav>
+    </div>
+</section>
+<span class="my-day-overview-label">Обзор дня</span>
+<section class="my-day-metrics my-day-metrics--full" aria-label="Сводка дня">
+    <a class="my-day-metric" href="#agenda-title">
+        <span class="my-day-metric__icon purple">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#calendar">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>План дня</span>
+            <strong>@Model.Items.Count задач</strong>
+            <small>@done выполнено</small>
+        </div>
+        <i>›</i>
+    </a>
+    <a class="my-day-metric" asp-controller="MyWorkouts">
+        <span class="my-day-metric__icon purple">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#dumbbell">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>Тренировки</span>
+            <strong>@(workouts==0?"Нет записи":$"{workouts} зап.")</strong>
+            <small>На сегодня</small>
+        </div>
+        <i>›</i>
+    </a>
+    <a class="my-day-metric" asp-controller="FoodDiary">
+        <span class="my-day-metric__icon green">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#nutrition">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>Питание</span>
+            <strong>@calories.ToString("0") ккал</strong>
+            <small>За день</small>
+        </div>
+        <i>›</i>
+    </a>
+    <a class="my-day-metric" asp-controller="FoodDiary">
+        <span class="my-day-metric__icon blue">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#water">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>Вода</span>
+            <strong>@water.ToString("0") мл</strong>
+            <small>За день</small>
+        </div>
+        <i>›</i>
+    </a>
+    <a class="my-day-metric" asp-controller="MyRecovery">
+        <span class="my-day-metric__icon amber">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#moon">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>Сон</span>
+            <strong>@(sleep==0?"Нет записи":$"{sleep:0.#} ч")</strong>
+            <small>За ночь</small>
+        </div>
+        <i>›</i>
+    </a>
+    <a class="my-day-metric" asp-controller="MySupplements">
+        <span class="my-day-metric__icon green">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#supplement">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>Добавки</span>
+            <strong>@(supplements==0?"Нет записей":$"{supplements} приём.")</strong>
+            <small>На сегодня</small>
+        </div>
+        <i>›</i>
+    </a>
+    <a class="my-day-metric" asp-controller="Measurements">
+        <span class="my-day-metric__icon purple">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#target">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>Замеры</span>
+            <strong>@measurementsText</strong>
+            <small>Журнал замеров</small>
+        </div>
+        <i>›</i>
+    </a>
+    <a class="my-day-metric" asp-controller="Calculators">
+        <span class="my-day-metric__icon purple">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#calculator">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <span>Калькуляторы</span>
+            <strong>Открыть</strong>
+            <small>35 инструментов</small>
+        </div>
+        <i>›</i>
+    </a>
+</section>
+<section class="panel my-day-agenda" aria-labelledby="agenda-title">
+    <div class="my-day-section-head">
+        <div>
+            <span class="eyebrow">Распорядок дня</span>
+            <h2 id="agenda-title">Распорядок дня</h2>
+        </div>
+        <span class="count-badge">@Model.Items.Count событий</span>
+    </div>
+    @if(!Model.Items.Any()){
+        <div class="my-day-empty">
+            <span class="my-day-empty__icon">
+                <svg class="fm-icon">
+                    <use href="/icons/fitmind-icons.svg#calendar">
+                    </use>
+                </svg>
+            </span>
+            <h3>День пока свободен</h3>
+            <p>Добавь первый пункт или подключи программу.<br/>Запланированные дела появятся здесь автоматически.</p>
+            <a asp-action="Add" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")" class="primary">＋ Добавить пункт</a>
+        </div>
+    }else{<ol class="my-day-timeline">
+    @foreach(var item in Model.Items){var source=item.ProgramItem?.Program?.Name??"Добавлено вручную";var status=item.Status==DayEntryStatus.Done?"Выполнено":item.Status==DayEntryStatus.Skipped?"Пропущено":"Запланировано";<li class="my-day-timeline__item @(item.Status==DayEntryStatus.Done?"is-done":"")">
+    <time>@item.Start.ToString("HH:mm")</time>
+    <span class="my-day-timeline__line">
+    </span>
+    <span class="my-day-timeline__icon">•</span>
+    <div class="my-day-timeline__content">
+        <div>
+            <span class="status-chip">@status</span>
+            <h3>@item.Title</h3>
+            <p>@item.Type · @source@(string.IsNullOrWhiteSpace(item.Comment)?"":" · "+item.Comment)</p>
+        </div>
+        <div class="my-day-timeline__actions">
+            <form asp-action="SetStatus" method="post">
+                <input type="hidden" name="id" value="@item.Id"/>
+                <select name="status" onchange="this.form.submit()">
+                    <option value="Planned" selected="@(item.Status==DayEntryStatus.Planned)">Запланировано</option>
+                    <option value="Done" selected="@(item.Status==DayEntryStatus.Done)">Выполнено</option>
+                    <option value="Skipped" selected="@(item.Status==DayEntryStatus.Skipped)">Пропущено</option>
+                </select>
+            </form>
+            <a asp-action="Edit" asp-route-id="@item.Id" class="ghost small">Изменить</a>
+            <form asp-action="Delete" method="post" data-confirm="Удалить пункт?">
+                <input type="hidden" name="id" value="@item.Id"/>
+                <button class="icon-button danger-icon">×</button>
+            </form>
+        </div>
+    </div>
+</li>
+}
+</ol>
+}
+</section>

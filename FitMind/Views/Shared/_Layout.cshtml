@@ -1,0 +1,76 @@
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@inject FitMind.Data.ApplicationDbContext LayoutDb
+@{
+    var layoutUid=User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var layoutName=layoutUid==null?null:await LayoutDb.UserProfiles.AsNoTracking().Where(x=>x.UserId==layoutUid).Select(x=>x.Name).FirstOrDefaultAsync();
+    var layoutTheme=layoutUid==null?"Тёмная":await LayoutDb.UserProfiles.AsNoTracking().Where(x=>x.UserId==layoutUid).Select(x=>x.Theme).FirstOrDefaultAsync()??"Тёмная";
+    var themeCode=layoutTheme=="Светлая"?"light":layoutTheme=="Системная"?"system":"dark";
+}
+@using FitMind.Models.Identity
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+<!doctype html>
+<html lang="ru" data-theme="@themeCode">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>@ViewData["Title"] — FitMind</title>
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+        <link rel="stylesheet" href="~/css/themes.css" asp-append-version="true"/>
+        <link rel="stylesheet" href="~/css/refinement.css" asp-append-version="true"/>
+    </head>
+    <body>
+        <div class="shell">
+            @if(SignInManager.IsSignedIn(User)){
+                <partial name="_Sidebar"/>}
+                <main class="main @(SignInManager.IsSignedIn(User)?"":"main-public")">
+                    @if(SignInManager.IsSignedIn(User)){
+                        <header class="topbar">
+                            <button type="button" class="ghost mobile-menu" aria-label="Открыть меню" aria-expanded="false">
+                                <svg class="fm-icon" aria-hidden="true">
+                                    <use href="/icons/fitmind-icons.svg#menu">
+                                    </use>
+                                </svg>
+                            </button>
+                            <div asp-validation-summary="All" class="validation">
+                            </div>
+                            <div class="top-actions">
+                                <a asp-controller="Notifications" asp-action="Index" class="icon-btn" title="Уведомления">
+                                    <svg class="fm-icon">
+                                        <use href="/icons/fitmind-icons.svg#bell">
+                                        </use>
+                                    </svg>
+                                </a>
+                                <a asp-controller="Profile" asp-action="Index">
+                                    <img class="avatar" src="/Profile/Avatar" alt="Профиль"/>
+                                </a>
+                                <div class="top-user">
+                                    <b>@(string.IsNullOrWhiteSpace(layoutName)?User.Identity?.Name?.Split('@')[0]:layoutName)</b>
+                                    <span>@User.Identity?.Name</span>
+                                </div>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button class="ghost small" type="submit">
+                                        <svg class="fm-icon">
+                                            <use href="/icons/fitmind-icons.svg#logout">
+                                            </use>
+                                        </svg>Выйти</button>
+                                    </form>
+                                </div>
+                            </header>
+                        }
+                        <section class="content @(SignInManager.IsSignedIn(User)?"":"content-public")">
+                            @if(TempData["Ok"]!=null){
+                                <div class="toast success">@TempData["Ok"]</div>
+                            }
+                            @if(TempData["Error"]!=null){
+                                <div class="toast error">@TempData["Error"]</div>
+                            }
+                            @RenderBody()
+                        </section>
+                    </main>
+                </div>
+                <script src="~/js/site.js" asp-append-version="true"></script>
+                @await RenderSectionAsync("Scripts", required:false)
+            </body>
+        </html>

@@ -1,0 +1,109 @@
+@model WorkoutRunVm
+@{
+    ViewData["Title"]="Выполнение тренировки";
+    var w=Model.Workout;
+}
+<div class="page-head">
+    <div>
+        <a class="back" asp-action="Index">← Мои тренировки</a>
+        <h1>Выполнение тренировки</h1>
+        <p>Записывай фактический вес, повторения и выполнение каждого подхода.</p>
+    </div>
+    <span class="status-chip large">@Model.StatusText</span>
+</div>
+@if(Model.StatusText == "Запланирована") { <div asp-validation-summary="All" class="validation">
+</div>
+<form asp-action="Begin" method="post" class="panel">
+    <input type="hidden" name="id" value="@w.Id"/>
+    <p>Перед первым подходом запусти тренировку, чтобы записать фактическое время начала.</p>
+    <button class="primary">Начать сейчас</button>
+</form> }
+<div class="run-layout">
+    <section class="run-main">
+        @if(Model.Exercises.Count==0){
+            <div class="panel empty-state">
+                <h3>В этой тренировке нет упражнений</h3>
+                <p>Добавь упражнения через «Редактировать».</p>
+            </div>
+        }
+        @foreach(var ex in Model.Exercises){
+            <article class="panel run-exercise">
+                <div class="run-exercise-head">
+                    <catalog-placeholder kind="Exercises" custom-src="@ex.Exercise.Image" alt="Обложка упражнения">
+                    </catalog-placeholder>
+                    <div>
+                        <h2>@ex.Exercise.Name</h2>
+                        <p>@(ex.Exercise.OwnerId!=null&&ex.Exercise.SourceExerciseId==null?"Своё упражнение":ex.Exercise.Category?.Name)</p>
+                    </div>
+                    <form asp-action="AddSet" method="post">
+                        <input type="hidden" name="entryId" value="@w.Id"/>
+                        <input type="hidden" name="exerciseId" value="@ex.Exercise.Id"/>
+                        <button class="ghost small">+ Подход</button>
+                    </form>
+                </div>
+                <div class="sets-table">
+                    <div class="set-head">
+                        <span>#</span>
+                        <span>Вес, кг</span>
+                        <span>Повторы</span>
+                        <span>Время, сек</span>
+                        <span>Выполнено</span>
+                        <span>
+                        </span>
+                    </div>
+                    @foreach(var s in ex.Sets){
+                        <form asp-action="SaveSet" method="post" class="set-row">
+                            <input type="hidden" name="setId" value="@s.Id"/>
+                            <span>@s.Number</span>
+                            <input name="weightKg" type="number" step="0.5" min="0" value="@s.WeightKg?.ToString("0.##",System.Globalization.CultureInfo.InvariantCulture)"/>
+                            <input name="reps" type="number" min="0" value="@s.Reps"/>
+                            <input name="durationSeconds" type="number" min="0" value="@s.Seconds"/>
+                            <label class="check">
+                                @if(s.Done){
+                                    <input name="completed" type="checkbox" value="true" checked/>}else{<input name="completed" type="checkbox" value="true"/>}
+                                    <input name="completed" type="hidden" value="false"/>
+                                    <span>✓</span>
+                                </label>
+                                <button class="ghost small">Сохранить</button>
+                            </form>
+                        }
+                    </div>
+                </article>
+            }
+        </section>
+        <aside class="panel run-side">
+            <h2>@w.Title</h2>
+            <p>@w.Start.ToString("dd MMMM · HH:mm")</p>
+            <div class="run-stats">
+                <div>
+                    <span>Упражнений</span>
+                    <b>@Model.Exercises.Count</b>
+                </div>
+                <div>
+                    <span>Подходов выполнено</span>
+                    <b>@Model.Exercises.Sum(x=>x.Sets.Count(s=>s.Done)) / @Model.Exercises.Sum(x=>x.Sets.Count)</b>
+                </div>
+            </div>
+            @if(w.Status!=DayEntryStatus.Done){
+                <form asp-action="Finish" method="post">
+                    <input type="hidden" name="id" value="@w.Id"/>
+                    <label>Самочувствие<select name="wellbeing">
+                    <option value="">Не указывать</option>
+                    <option value="1">1 — тяжело</option>
+                    <option value="2">2</option>
+                    <option value="3">3 — нормально</option>
+                    <option value="4">4</option>
+                    <option value="5">5 — отлично</option>
+                </select>
+            </label>
+            <label>Комментарий<textarea name="note" rows="5" placeholder="Как прошла тренировка?">@w.Comment</textarea></label>
+            <button class="primary full" type="submit">Завершить тренировку</button>
+        </form>
+    }else{<p class="muted">Тренировка завершена@(w.Rating.HasValue?$", самочувствие {w.Rating}/5":"").</p>
+}
+<div class="note-box">Прогресс будет анализировать только сохранённые фактические результаты.</div>
+</aside>
+</div>
+<div class="actions">
+    <a class="ghost" asp-action="Details" asp-route-id="@w.Id">Просмотреть и управлять тренировкой</a>
+</div>

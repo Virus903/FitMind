@@ -1,0 +1,125 @@
+@model ProfileEditVm
+@{
+    ViewData["Title"] = "Редактирование профиля";
+    var acts = (IEnumerable<ActivityLevel>)ViewBag.Activities;
+    var goals = (IEnumerable<FitnessGoal>)ViewBag.Goals;
+    var levels = (IEnumerable<TrainingLevel>)ViewBag.Levels;
+    var formats = (IEnumerable<TrainingFormat>)ViewBag.Formats;
+    var selectedFormats = Model.FormatIds ?? new List<int>();
+}
+<div class="page-head">
+    <div>
+        <h1>Редактирование профиля</h1>
+        <p>Все данные анкеты можно изменить в одном месте.</p>
+    </div>
+</div>
+<nav class="profile-edit-tabs" aria-label="Разделы профиля">
+    <a href="#personal">Личные данные</a>
+    <a href="#goal">Цель и уровень</a>
+    <a href="#training">Тренировки</a>
+    <a href="#avatar">Аватар</a>
+</nav>
+<form asp-action="Edit" method="post" class="profile-edit-v04" id="profile-edit-form">
+    <div asp-validation-summary="All" class="validation">
+    </div>
+    <section class="form-card" id="personal">
+        <h2>Основная информация</h2>
+        <div class="form-grid three">
+            <label>Имя<input asp-for="Name" />
+        </label>
+        <label>Возраст<input asp-for="Age" />
+    </label>
+    <label>Пол<select asp-for="Gender">
+    <option>Мужской</option>
+    <option>Женский</option>
+    <option>Не указан</option>
+</select>
+</label>
+<label>Рост, см<input asp-for="HeightCm" />
+</label>
+<label>Вес, кг<input asp-for="WeightKg" step="0.1" />
+</label>
+<label>Активность<select asp-for="ActivityLevelId">
+<option value="">Выбери</option>
+@foreach (var a in acts) { <option value="@a.Id">@a.Name</option> }
+</select>
+</label>
+</div>
+<label>О себе<textarea asp-for="AboutMe" rows="5" maxlength="1000" placeholder="Расскажи о себе, целях и привычках."></textarea></label>
+</section>
+<section class="form-card" id="goal">
+    <h2>Цель и уровень</h2>
+    <div class="profile-edit-format-grid">
+        @foreach(var g in goals){
+            <label class="profile-edit-format">
+                <input asp-for="GoalId" type="radio" value="@g.Id"/>
+                <span>
+                    <b>@g.Name</b>
+                </span>
+            </label>
+        }
+    </div>
+    <div class="profile-edit-format-grid">
+        @foreach(var l in levels){
+            <label class="profile-edit-format">
+                <input asp-for="TrainingLevelId" type="radio" value="@l.Id"/>
+                <span>
+                    <b>@l.Name</b>
+                </span>
+            </label>
+        }
+    </div>
+</section>
+<section class="form-card" id="training">
+    <h2>Тренировочные предпочтения</h2>
+    <div class="form-grid two">
+        <fieldset class="profile-edit-places">
+            <legend>Место тренировок</legend>
+            <label class="check">
+                <input asp-for="AtHome" type="checkbox" /> Дома</label>
+                <label class="check">
+                    <input asp-for="Outdoor" type="checkbox" /> На улице</label>
+                    <label class="check">
+                        <input asp-for="AtGym" type="checkbox" /> В зале</label>
+                    </fieldset>
+                    <label>Частота<select asp-for="WorkoutsPerWeek">
+                    <option value="2">1–2 раза в неделю</option>
+                    <option value="4">3–4 раза в неделю</option>
+                    <option value="5">5+ раз в неделю</option>
+                </select>
+            </label>
+        </div>
+        <div class="profile-edit-format-grid">
+            @foreach (var f in formats)
+            {
+            <label class="profile-edit-format">
+                @if (selectedFormats.Contains(f.Id)) { <input type="checkbox" name="FormatIds" value="@f.Id" checked /> } else { <input type="checkbox" name="FormatIds" value="@f.Id" /> }
+                <span>
+                    <b>@f.Name</b>
+                    <small>@f.Description</small>
+                </span>
+            </label>
+        }
+    </div>
+    <span asp-validation-for="FormatIds" class="validation">
+    </span>
+</section>
+</form>
+<section class="form-card" id="avatar">
+    <h2>Аватар</h2>
+    <img class="profile-v04-avatar" src="/Profile/Avatar" alt="Текущий аватар"/>
+    <div class="profile-avatar-actions">
+        <form asp-action="UploadAvatar" method="post" enctype="multipart/form-data">
+            <label>PNG, JPEG или WebP до 2 МБ<input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" required/>
+        </label>
+        <button class="primary">Обновить аватар</button>
+    </form>
+    <form asp-action="DeleteAvatar" method="post">
+        <button class="danger">Удалить аватар</button>
+    </form>
+</div>
+</section>
+<div class="form-actions profile-edit-actions">
+    <a asp-action="Index" class="ghost">Отмена</a>
+    <button class="primary" type="submit" form="profile-edit-form">Сохранить изменения</button>
+</div>

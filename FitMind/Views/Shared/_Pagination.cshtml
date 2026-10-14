@@ -1,0 +1,18 @@
+@model FitMind.ViewModels.PaginationVm
+@using Microsoft.AspNetCore.WebUtilities
+@if(Model.TotalItems>0){
+    var values=Context.Request.Query.ToDictionary(x=>x.Key,x=>x.Value.ToString());
+    string Link(int page){values["page"]=page.ToString();return QueryHelpers.AddQueryString(Context.Request.Path,values!);}
+    <nav class="catalog-pagination" aria-label="Страницы каталога">
+        <span>Показано @Model.From–@Model.To из @Model.TotalItems</span>
+        <div>
+            @if(Model.Page>1){
+                <a class="ghost small" href="@Link(Model.Page-1)">← Назад</a>
+            }
+            <b>Страница @Model.Page из @Model.TotalPages</b>
+            @if(Model.Page<Model.TotalPages){
+                <a class="ghost small" href="@Link(Model.Page+1)">Далее →</a>
+            }
+        </div>
+    </nav>
+}

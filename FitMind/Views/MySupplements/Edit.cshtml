@@ -1,0 +1,33 @@
+@model UserSupplementEditVm
+@{
+    ViewData["Title"] = Model.Id.HasValue ? "Изменить свою добавку" : "Добавить свою добавку";
+    var categories = (List<Category>)ViewBag.Categories;
+}
+<section class="page-head">
+    <div>
+        <span class="eyebrow">Мой список</span>
+        <h1>@ViewData["Title"]</h1>
+    </div>
+    <a class="ghost" asp-action="Index">Отмена</a>
+</section>
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="panel form-grid">
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="Image" type="hidden"/>
+    <div asp-validation-summary="ModelOnly">
+    </div>
+    <label>Название<input asp-for="Name" required/>
+</label>
+<label>Категория<select asp-for="CategoryId">
+<option value="">Выберите</option>
+@foreach (var item in categories) { <option value="@item.Id">@item.Name</option> }
+</select>
+</label>
+<label class="full">Описание<textarea asp-for="Description"></textarea></label>
+<label class="full">Своя картинка (необязательно)<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+<catalog-placeholder class="full program-form-cover" kind="Supplements" custom-src="@Model.Image" alt="Обложка добавки">
+</catalog-placeholder>
+<div class="full">
+    <button class="primary">Сохранить</button>
+</div>
+</form>

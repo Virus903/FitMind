@@ -1,0 +1,16 @@
+@model (string Kind, int Id, string? Image)
+<section class="admin-panel">
+    <h2>Изображение</h2>
+    @if(!string.IsNullOrWhiteSpace(Model.Image)){
+        <img class="admin-image-preview" src="@Model.Image" alt="Текущее изображение"/>}
+        <form asp-controller="Media" asp-action="Upload" method="post" enctype="multipart/form-data" class="admin-form media-upload">
+            <input type="hidden" name="kind" value="@Model.Kind"/>
+            <input type="hidden" name="id" value="@Model.Id"/>
+            <label>PNG, JPEG или WebP, до 5 МБ<input name="image" type="file" accept="image/png,image/jpeg,image/webp" required/>
+        </label>
+        <p class="field-validation-error media-upload-error" role="alert" hidden>
+        </p>
+        <img class="admin-image-preview media-upload-preview" alt="Предпросмотр выбранного изображения" hidden/>
+        <button class="primary">Загрузить изображение</button>
+    </form>
+</section>

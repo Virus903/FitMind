@@ -1,0 +1,84 @@
+@model WorkoutCreateVm
+@{
+    ViewData["Title"]="Создать тренировку";
+    var exercises=(IEnumerable<Exercise>)ViewBag.Exercises;
+}
+<div class="page-head">
+    <div>
+        <a class="back" asp-action="Index">← Мои тренировки</a>
+        <h1>Создать свою тренировку</h1>
+        <p>Это личная запись: выбранные упражнения копируются из базы, но сама база не изменяется.</p>
+    </div>
+</div>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form asp-action="Create" method="post" class="workout-create-layout">
+    <section class="panel form-shell">
+        <h2>Основная информация</h2>
+        <div class="form-grid two">
+            <label>Название<input asp-for="Name" placeholder="Например: Верх тела"/>
+        </label>
+        <label>Тип<select asp-for="Type">
+        <option value="Силовая">Силовая</option>
+        <option value="Функциональная">Функциональная</option>
+        <option value="Кардио">Кардио</option>
+        <option value="Смешанная">Смешанная</option>
+    </select>
+</label>
+<label>Дата и время<input asp-for="StartAt" type="datetime-local" step="60" asp-format="{0:yyyy-MM-ddTHH:mm}"/>
+</label>
+<label>Плановая длительность, мин<input asp-for="PlannedDurationMinutes" type="number" min="10" max="240"/>
+</label>
+</div>
+<label>Комментарий<textarea asp-for="Note" rows="3" placeholder="Цель или заметка к тренировке"></textarea></label>
+<h3>Мои упражнения</h3>
+<div class="exercise-pick-list">
+    @foreach(var own in (IEnumerable<Exercise>)ViewBag.MyExercises){
+        <label class="check">
+            <input type="checkbox" name="ExerciseIds" value="@own.Id" checked="@Model.ExerciseIds.Contains(own.Id)"/>
+            <span>@own.Name</span>
+        </label>
+    }
+</div>
+<div class="panel-head subhead">
+    <div>
+        <h2>Упражнения из базы</h2>
+        <p>Отметь нужные упражнения</p>
+    </div>
+    <a class="text-link" asp-controller="Exercises" asp-action="Index">Открыть базу →</a>
+</div>
+<div class="exercise-select-grid">
+    @foreach(var e in exercises){
+        <label class="select-card">
+            @if(Model.ExerciseIds.Contains(e.Id)){
+                <input type="checkbox" name="ExerciseIds" value="@e.Id" checked/>}else{<input type="checkbox" name="ExerciseIds" value="@e.Id"/>}
+                <catalog-placeholder kind="Exercises" custom-src="@e.Image" alt="@e.Name">
+                </catalog-placeholder>
+                <span>
+                    <b>@e.Name</b>
+                    <small>@e.Category?.Name · @e.Equipment · @e.Difficulty</small>
+                </span>
+                <i>✓</i>
+            </label>
+        }
+    </div>
+    <div class="custom-exercise">
+        <h3>Своё упражнение только для этой тренировки</h3>
+        <p>Оно не попадёт в общую базу.</p>
+        <input name="CustomExercises" placeholder="Название своего упражнения"/>
+    </div>
+    <div class="form-actions">
+        <a class="ghost" asp-action="Index">Отмена</a>
+        <button class="primary" type="submit">Создать тренировку</button>
+    </div>
+</section>
+<aside class="panel info-aside">
+    <svg class="fm-icon big-icon">
+        <use href="/icons/fitmind-icons.svg#dumbbell">
+        </use>
+    </svg>
+    <h2>Как это работает</h2>
+    <p>Ты создаёшь личную тренировку и выбираешь готовые упражнения из информационной базы. После начала тренировки вручную вводишь вес, повторения и отмечаешь выполненные подходы.</p>
+    <div class="note-box">Общая база упражнений доступна только для просмотра и выбора.</div>
+</aside>
+</form>

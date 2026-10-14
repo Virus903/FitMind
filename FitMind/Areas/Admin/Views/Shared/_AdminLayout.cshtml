@@ -1,0 +1,140 @@
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@inject FitMind.Data.ApplicationDbContext LayoutDb
+@{
+    var layoutUid=User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var layoutTheme=layoutUid==null?"Тёмная":await LayoutDb.UserProfiles.AsNoTracking().Where(x=>x.UserId==layoutUid).Select(x=>x.Theme).FirstOrDefaultAsync()??"Тёмная";
+    var themeCode=layoutTheme=="Светлая"?"light":layoutTheme=="Системная"?"system":"dark";
+    var adminController=ViewContext.RouteData.Values["controller"]?.ToString();
+    var adminAction=ViewContext.RouteData.Values["action"]?.ToString();
+    var adminKind=Context.Request.Query["kind"].ToString();
+    string NavClass(string controller,string? kind=null)=>adminController==controller&&(kind==null||adminKind==kind)?"active":string.Empty;
+}
+<!doctype html>
+<html lang="ru" data-theme="@themeCode">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>@ViewData["Title"] — Администрирование FitMind</title>
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/themes.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/refinement.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/admin-refinements.css" asp-append-version="true" />
+    </head>
+    <body>
+        <div class="admin-shell">
+            <aside class="admin-sidebar">
+                <a class="brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <svg class="fm-icon brand-icon">
+                        <use href="/icons/fitmind-icons.svg#logo">
+                        </use>
+                    </svg>
+                    <b>Fit<span>Mind</span>
+                </b>
+            </a>
+            <button type="button" class="admin-menu-toggle ghost" aria-expanded="false" aria-controls="admin-navigation">Разделы админки</button>
+            <p class="admin-caption">Администрирование</p>
+            <nav id="admin-navigation">
+                <a class="@(adminController=="Admin"&&adminAction=="Index"?"active":"")" asp-area="Admin" asp-controller="Admin" asp-action="Index">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#home">
+                        </use>
+                    </svg>
+                    <span>Обзор</span>
+                </a>
+                <a class="@(adminController=="Admin"&&adminAction=="Users"?"active":"")" asp-area="Admin" asp-controller="Admin" asp-action="Users">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#group">
+                        </use>
+                    </svg>
+                    <span>Пользователи</span>
+                </a>
+                <a class="@NavClass("Dictionaries")" asp-area="Admin" asp-controller="Dictionaries" asp-action="Index" asp-route-kind="exercise-categories">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#book">
+                        </use>
+                    </svg>
+                    <span>Справочники</span>
+                </a>
+                <p>КОНТЕНТ</p>
+                <a class="@NavClass("Programs")" asp-area="Admin" asp-controller="Programs" asp-action="Index">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#dumbbell">
+                        </use>
+                    </svg>
+                    <span>Программы тренировок</span>
+                </a>
+                <a class="@NavClass("NutritionPrograms")" asp-area="Admin" asp-controller="NutritionPrograms" asp-action="Index">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#nutrition">
+                        </use>
+                    </svg>
+                    <span>Программы питания</span>
+                </a>
+                <a class="@NavClass("SleepPrograms")" asp-area="Admin" asp-controller="SleepPrograms" asp-action="Index">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#moon">
+                        </use>
+                    </svg>
+                    <span>Программы сна</span>
+                </a>
+                <a class="@NavClass("Catalog","exercises")" asp-area="Admin" asp-controller="Catalog" asp-action="Index" asp-route-kind="exercises">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#muscle">
+                        </use>
+                    </svg>
+                    <span>Упражнения</span>
+                </a>
+                <a class="@NavClass("Catalog","products")" asp-area="Admin" asp-controller="Catalog" asp-action="Index" asp-route-kind="products">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#nutrition">
+                        </use>
+                    </svg>
+                    <span>Продукты</span>
+                </a>
+                <a class="@NavClass("Catalog","recipes")" asp-area="Admin" asp-controller="Catalog" asp-action="Index" asp-route-kind="recipes">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#article">
+                        </use>
+                    </svg>
+                    <span>Рецепты</span>
+                </a>
+                <a class="@NavClass("Catalog","recovery")" asp-area="Admin" asp-controller="Catalog" asp-action="Index" asp-route-kind="recovery">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#moon">
+                        </use>
+                    </svg>
+                    <span>Восстановление</span>
+                </a>
+                <a class="@NavClass("Catalog","supplements")" asp-area="Admin" asp-controller="Catalog" asp-action="Index" asp-route-kind="supplements">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#supplement">
+                        </use>
+                    </svg>
+                    <span>Добавки</span>
+                </a>
+                <a class="@NavClass("Catalog","articles")" asp-area="Admin" asp-controller="Catalog" asp-action="Index" asp-route-kind="articles">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#book">
+                        </use>
+                    </svg>
+                    <span>Статьи</span>
+                </a>
+            </nav>
+            <a class="admin-back" asp-area="" asp-controller="Schedule" asp-action="Index">← Вернуться в приложение</a>
+        </aside>
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <span>FitMind / @ViewData["Title"]</span>
+                <span class="pill">Администратор</span>
+            </header>
+            @if (TempData["Ok"] != null) { <div class="toast success">@TempData["Ok"]</div> }
+            @if (TempData["Error"] != null) { <div class="toast error">@TempData["Error"]</div> }
+            @RenderBody()
+        </main>
+    </div>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

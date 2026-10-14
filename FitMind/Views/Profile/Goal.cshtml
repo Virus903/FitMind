@@ -1,0 +1,102 @@
+@model GoalStepVm
+@{
+    Layout = null;
+    var goals = (IEnumerable<FitnessGoal>)ViewBag.Goals;
+    var levels = (IEnumerable<TrainingLevel>)ViewBag.Levels;
+}
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1"/>
+        <title>Цель — FitMind</title>
+        <link rel="stylesheet" href="/css/site.css"/>
+    </head>
+    <body class="onboarding-v04-page">
+        <header class="onboarding-v04-header">
+            <a class="onboarding-v04-logo" href="/">
+                <svg class="fm-icon">
+                    <use href="/icons/fitmind-icons.svg#logo">
+                    </use>
+                </svg>
+                <b>Fit<span>Mind</span>
+            </b>
+        </a>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="onboarding-v04-exit">Выйти</button>
+        </form>
+    </header>
+    <main class="onboarding-v04-shell">
+        <form asp-action="Goal" method="post" class="onboarding-v04-card">
+            <partial name="_OnboardingSteps" model="2" />
+            <div class="onboarding-v04-heading">
+                <h1>Выбери свою <span>цель</span>
+            </h1>
+            <p>Это поможет нам предложить подходящие тренировки и рекомендации.</p>
+        </div>
+        <div asp-validation-summary="All" class="validation">
+        </div>
+        <section class="onboarding-v04-section">
+            <h2>Твоя цель</h2>
+            <div class="goal-choice-grid">
+                @foreach (var g in goals)
+                {
+                var icon = g.Name.Contains("Снижение") ? "flame" : g.Name.Contains("массы") ? "dumbbell" : g.Name.Contains("сил") ? "muscle" : "heart";
+                var display = g.Name;
+                <label class="goal-choice-card">
+                    <input asp-for="GoalId" type="radio" value="@g.Id" />
+                    <span class="choice-radio">
+                    </span>
+                    <span class="goal-choice-icon">
+                        <svg class="fm-icon">
+                            <use href="/icons/fitmind-icons.svg#@icon">
+                            </use>
+                        </svg>
+                    </span>
+                    <b>@display</b>
+                    <small>@g.Description</small>
+                </label>
+            }
+        </div>
+        <span asp-validation-for="GoalId" class="validation">
+        </span>
+    </section>
+    <section class="onboarding-v04-section">
+        <h2>Твой уровень подготовки</h2>
+        <div class="choice-grid four">
+            @foreach (var level in levels)
+            {
+            var label = level.Name;
+            var subtitle = level.Description ?? (level.Name == "Новичок" ? "Только начинаю" : level.Name == "Средний" ? "Есть базовый опыт" : level.Name == "Высокий" ? "Регулярно тренируюсь" : "Тренируюсь давно и много");
+            <label class="choice-card">
+                <input asp-for="TrainingLevelId" type="radio" value="@level.Id" />
+                <span class="choice-radio">
+                </span>
+                <span class="level-bars">
+                    <i>
+                    </i>
+                    <i>
+                    </i>
+                    <i>
+                    </i>
+                </span>
+                <span>
+                    <b>@label</b>
+                    <small>@subtitle</small>
+                </span>
+            </label>
+        }
+    </div>
+    <span asp-validation-for="TrainingLevelId" class="validation">
+    </span>
+</section>
+<div class="onboarding-v04-actions">
+    <a asp-action="Setup" class="onboarding-v04-secondary">
+        <span>←</span> Назад</a>
+        <button type="submit" class="onboarding-v04-primary">Далее <span>→</span>
+    </button>
+</div>
+</form>
+</main>
+</body>
+</html>

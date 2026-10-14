@@ -1,0 +1,73 @@
+@model FitMind.ViewModels.NutritionPlanEditVm
+@using FitMind.Models
+@{
+    ViewData["Title"]=Model.Id.HasValue?"Изменить программу питания":"Создать программу питания";
+    var products=(IEnumerable<FoodProduct>)ViewBag.Products;
+}
+<div class="page-head">
+    <div>
+        <a asp-action="Index" class="text-link">← Питание и вода</a>
+        <h1>@ViewData["Title"]</h1>
+        <p>Настрой 3–6 приёмов пищи, воду, срок и дату начала.</p>
+    </div>
+</div>
+<form method="post" enctype="multipart/form-data" class="program-builder-grid">
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="Image" type="hidden"/>
+    <section class="panel form-shell">
+        <div asp-validation-summary="All" class="validation">
+        </div>
+        <label>Название<input asp-for="Name"/>
+    </label>
+    <div class="form-grid three">
+        <label>Цель<input asp-for="Goal"/>
+    </label>
+    <label>Ккал в день<input asp-for="CaloriesTarget" type="number"/>
+</label>
+<label>Вода в день, мл<input asp-for="WaterMl" type="number" step="50"/>
+</label>
+<label>Длительность, недель<input asp-for="Weeks" type="number"/>
+</label>
+<label>Дата начала<input asp-for="StartDate" type="date"/>
+</label>
+<label>Приёмов пищи<input asp-for="MealsPerDay" type="number" min="3" max="6"/>
+</label>
+</div>
+<label>Описание и что пить<textarea asp-for="Description" rows="4"></textarea></label>
+<label>Своя обложка (необязательно)<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+<div class="plan-slots-grid">
+    @for(var i=0;i<Model.Items.Count;i++){
+        <fieldset class="plan-slot" data-meal-slot="@i">
+            <legend>Приём @(i+1)</legend>
+            <label>Название<input asp-for="Items[i].Name"/>
+        </label>
+        <label>Время<input asp-for="Items[i].Time" type="time"/>
+    </label>
+    <label>Продукт или рецепт<select asp-for="Items[i].ProductId">
+    <option value="">Без состава</option>
+    @foreach(var p in products){
+        <option value="@p.Id">@p.Name</option>
+    }
+</select>
+</label>
+<label>Граммы<input asp-for="Items[i].Grams" type="number" min="1" max="5000"/>
+</label>
+<label>Ккал<input asp-for="Items[i].Calories" type="number" min="0"/>
+</label>
+</fieldset>
+}
+</div>
+<div class="form-actions">
+    <a asp-action="Index" class="ghost">Отмена</a>
+    <button class="primary">Сохранить программу</button>
+</div>
+</section>
+<aside class="panel builder-side">
+    <h2>Обложка программы</h2>
+    <catalog-placeholder kind="NutritionPrograms" custom-src="@Model.Image" alt="Обложка программы питания">
+    </catalog-placeholder>
+    <p>Активная программа ежедневно добавляет приёмы пищи и воду в «Мой день». Фактические записи сохраняются отдельно.</p>
+</aside>
+</form>
+@section Scripts{<script>const count=document.getElementById('MealsPerDay'),slots=[...document.querySelectorAll('[data-meal-slot]')];const sync=()=>slots.forEach((x,i)=>{x.hidden=i>=Number(count.value);x.querySelectorAll('input,select').forEach(f=>f.disabled=x.hidden)});count.addEventListener('change',sync);sync();</script>}

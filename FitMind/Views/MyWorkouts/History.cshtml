@@ -1,0 +1,25 @@
+@model List<DayEntry>
+@{
+    ViewData["Title"]="Все тренировки";
+}
+<div class="page-head">
+    <div>
+        <a asp-action="Index" class="back">← Мои тренировки</a>
+        <h1>Все тренировки</h1>
+    </div>
+    <a asp-action="Create" class="primary">Создать тренировку</a>
+</div>
+<section class="panel">
+    @if(!Model.Any()){
+        <p>Тренировок пока нет.</p>
+    }
+    @foreach(var w in Model){
+        <a class="record-row" asp-action="Details" asp-route-id="@w.Id">
+            <div>
+                <b>@w.Title</b>
+                <p>@w.Start.ToString("dd.MM.yyyy HH:mm")</p>
+            </div>
+            <span>@FitMind.Services.ProgramScheduleService.StatusText(w)</span>
+        </a>
+    }
+</section>

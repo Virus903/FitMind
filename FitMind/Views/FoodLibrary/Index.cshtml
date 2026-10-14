@@ -1,0 +1,63 @@
+@model FoodLibraryVm
+@{
+    ViewData["Title"]="Продукты и рецепты";
+    var cats=(IEnumerable<Category>)ViewBag.Categories;
+}
+<div class="page-head">
+    <div>
+        <h1>Продукты и рецепты</h1>
+        <p>База FitMind с пищевой ценностью и инструкциями.</p>
+    </div>
+</div>
+<form method="get" class="filterbar library-filter">
+    <input name="q" value="@Model.Query" placeholder="Поиск..."/>
+    <select name="type">
+        <option value="">Всё</option>
+        <option value="products">Продукты</option>
+        <option value="recipes">Рецепты</option>
+    </select>
+    <select name="category">
+        <option value="">Все категории</option>
+        @foreach(var c in cats){
+            <option selected="@(Model.Category==c.Name)">@c.Name</option>
+        }
+    </select>
+    <select name="sort">
+        <option value="">По названию</option>
+        <option value="calories">По калориям</option>
+    </select>
+    <button class="primary">Применить</button>
+</form>
+@if(!Model.Products.Any()&&!Model.Recipes.Any()){
+    <section class="empty-state">
+        <h2>Ничего не найдено</h2>
+    </section>
+}
+@foreach(var group in new[]{("Продукты",Model.Products),("Рецепты",Model.Recipes)}){@if(group.Item2.Any()){
+    <h2 class="section-title">@group.Item1</h2>
+    <div class="library-grid">
+        @foreach(var x in group.Item2){
+            <article class="library-card">
+                <catalog-placeholder kind="Food" alt="Иллюстрация раздела «Продукты и рецепты»">
+                </catalog-placeholder>
+                <div class="library-card-body">
+                    <span class="pill">@x.Category?.Name</span>
+                    <h3>@x.Name</h3>
+                    <p>@x.Description</p>
+                    <div class="macro-line">
+                        <b>@x.Calories.ToString("0") ккал</b>
+                        <span>Б @x.Protein.ToString("0")</span>
+                        <span>Ж @x.Fat.ToString("0")</span>
+                        <span>У @x.Carbs.ToString("0")</span>
+                    </div>
+                    <a asp-action="@(x.Kind==FoodProductKind.Recipe?"Recipe":"Product")" asp-route-id="@x.Id" class="ghost full">Подробнее</a>
+                    <form asp-controller="FoodDiary" asp-action="AddFoodFromBase" method="post">
+                        <input type="hidden" name="id" value="@x.Id"/>
+                        <button class="primary full">Добавить в мои</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+}}
+<partial name="_Pagination" model="ViewBag.Pagination"/>

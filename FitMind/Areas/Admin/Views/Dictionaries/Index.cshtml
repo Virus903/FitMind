@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"]=ViewBag.Title;
+    var rows=(IEnumerable<AdminDictionaryVm>)ViewBag.Rows;
+    var kind=(string)ViewBag.Kind;
+}
+<section class="admin-page-head">
+    <div>
+        <h1>@ViewBag.Title</h1>
+        <p>Справочники, используемые каталогами FitMind.</p>
+    </div>
+</section>
+<nav class="admin-filter dictionary-tabs" aria-label="Справочники">
+    @foreach(var item in new[]{("exercise-categories","Упражнения"),("muscles","Мышцы"),("food-categories","Продукты"),("supplement-categories","Добавки"),("article-categories","Статьи")})
+    {<a class="ghost" asp-action="Index" asp-route-kind="@item.Item1" aria-current="@(kind==item.Item1?"page":null)">@item.Item2</a>
+}
+</nav>
+<section class="admin-panel admin-editor-width">
+    <form asp-action="Save" method="post" class="admin-form admin-editor-inner">
+        <input name="Kind" type="hidden" value="@kind"/>
+        <label>Название<input name="Name" required maxlength="120"/>
+    </label>
+    <label>Описание<input name="Description" maxlength="800"/>
+</label>
+<button class="primary">Добавить</button>
+</form>
+</section>
+<section class="admin-panel table-wrap">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var x in rows){
+                <tr>
+                    <td>
+                        <form asp-action="Save" method="post" class="dictionary-inline">
+                            <input name="Kind" type="hidden" value="@kind"/>
+                            <input name="Id" type="hidden" value="@x.Id"/>
+                            <input name="Name" value="@x.Name" required/>
+                            <input name="Description" value="@x.Description"/>
+                            <button class="ghost small">Сохранить</button>
+                        </form>
+                    </td>
+                    <td>@x.Description</td>
+                    <td>
+                        <form asp-action="Delete" method="post" data-confirm="Удалить запись? Действие нельзя отменить.">
+                            <input name="kind" type="hidden" value="@kind"/>
+                            <input name="id" type="hidden" value="@x.Id"/>
+                            <button class="danger ghost small">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

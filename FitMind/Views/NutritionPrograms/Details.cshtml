@@ -1,0 +1,44 @@
+@model FitnessProgram
+@{
+    ViewData["Title"]=Model.Name;
+}
+<a asp-action="Index" class="back">← Программы питания</a>
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="NutritionPrograms" alt="Иллюстрация раздела «Программы питания»">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">@Model.GoalText</span>
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+        <div class="info-grid">
+            <div>
+                <small>Калории</small>
+                <b>@Model.CaloriesPerDay ккал</b>
+            </div>
+            <div>
+                <small>Вода</small>
+                <b>@Model.WaterMl мл</b>
+            </div>
+            <div>
+                <small>Длительность</small>
+                <b>@Model.Weeks нед.</b>
+            </div>
+        </div>
+        <form asp-action="AddToMine" method="post">
+            <input type="hidden" name="id" value="@Model.Id"/>
+            <button class="primary">Добавить в мои программы</button>
+        </form>
+    </div>
+</div>
+<section class="panel">
+    <h2>Распорядок</h2>
+    @foreach(var item in Model.Items.OrderBy(x=>x.Order)){
+        <div class="record-row">
+            <div>
+                <b>@item.Title</b>
+                <small>@item.Time?.ToString(@"hh\:mm")</small>
+            </div>
+            <span>@(item.Type==ProgramItemType.Water?$"{item.WaterMl} мл":$"{item.Calories} ккал")</span>
+        </div>
+    }
+</section>

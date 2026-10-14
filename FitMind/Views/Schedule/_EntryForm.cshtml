@@ -1,0 +1,70 @@
+@model ScheduleEditVm
+@using FitMind.Models
+<a asp-action="Index" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")" class="back">← Назад к моему дню</a>
+<div class="page-head">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Выберите тип и заполните относящиеся к нему поля.</p>
+    </div>
+</div>
+<form asp-action="Save" method="post" class="panel form-shell narrow-form">
+    <input asp-for="Id" type="hidden"/>
+    <fieldset>
+        <legend>Тип пункта</legend>
+        <div class="choice-grid">
+            @foreach(var choice in new[]{(ProgramItemType.Workout,"Тренировка"),(ProgramItemType.Meal,"Приём пищи"),(ProgramItemType.Water,"Вода"),(ProgramItemType.Bedtime,"Сон"),(ProgramItemType.Procedure,"Процедура"),(ProgramItemType.Supplement,"Добавка"),(ProgramItemType.Custom,"Свой пункт")}){<label>
+            <input asp-for="Type" type="radio" value="@choice.Item1"/>
+            <span>@choice.Item2</span>
+        </label>
+    }
+</div>
+</fieldset>
+<div class="form-grid two">
+    <label>Дата<input asp-for="Date" type="date"/>
+</label>
+<label>Время<input asp-for="Time" type="time"/>
+</label>
+</div>
+<label>Название<input asp-for="Title" placeholder="Подставится автоматически, если оставить пустым"/>
+</label>
+<div class="form-grid two">
+    <label>Количество / длительность<input asp-for="Value" type="number" step="0.1"/>
+    <small>Вода — мл; тренировка и процедура — минуты.</small>
+</label>
+<label>Окончание<input asp-for="End" type="datetime-local"/>
+</label>
+</div>
+<div class="form-grid two">
+    <label>Метод восстановления<select asp-for="RecoveryMethodId">
+    <option value="">Не выбран</option>
+    @foreach(var x in Model.RecoveryMethods){
+        <option value="@x.Id">@x.Name</option>
+    }
+</select>
+</label>
+<label>Добавка<select asp-for="SupplementId">
+<option value="">Не выбрана</option>
+@foreach(var x in Model.Supplements){
+    <option value="@x.Id">@x.Name</option>
+}
+</select>
+</label>
+</div>
+<div class="form-grid two">
+    <label>Оценка<input asp-for="Rating" type="number" min="1" max="5"/>
+</label>
+<label>Статус<select asp-for="Status">
+<option value="Planned">Запланировано</option>
+<option value="Done">Выполнено</option>
+<option value="Skipped">Пропущено</option>
+</select>
+</label>
+</div>
+<label>Комментарий<textarea asp-for="Comment" rows="4"></textarea></label>
+<div asp-validation-summary="All" class="validation">
+</div>
+<div class="form-actions">
+    <a asp-action="Index" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")" class="ghost">Отмена</a>
+    <button class="primary">Сохранить пункт</button>
+</div>
+</form>

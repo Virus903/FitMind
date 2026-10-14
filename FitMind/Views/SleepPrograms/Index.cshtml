@@ -1,0 +1,45 @@
+@model IEnumerable<FitnessProgram>
+@{
+    ViewData["Title"] = "Программы сна и восстановления";
+}
+<section class="page-head">
+    <div>
+        <h1>Программы сна и восстановления</h1>
+        <p>Готовые режимы сна и восстановления FitMind.</p>
+    </div>
+</section>
+<form method="get" class="library-toolbar">
+    <label class="library-search">Поиск<input type="search" name="search" value="@ViewBag.Search" placeholder="Название или описание"/>
+</label>
+<label>Сортировка<select name="sort" onchange="this.form.submit()">
+<option value="name" selected="@(ViewBag.Sort == "name")">По названию</option>
+<option value="weeks" selected="@(ViewBag.Sort == "weeks")">По длительности</option>
+<option value="newest" selected="@(ViewBag.Sort == "newest")">Сначала новые</option>
+</select>
+</label>
+<button class="primary">Найти</button>
+@if(!string.IsNullOrWhiteSpace((string?)ViewBag.Search)){
+    <a class="ghost" asp-action="Index">Сбросить</a>
+}
+</form>
+@if(!Model.Any()){
+    <div class="empty-line">
+        <b>Ничего не найдено</b>
+        <span>Измени поисковый запрос или сбрось фильтр.</span>
+    </div>
+}
+<div class="library-grid">
+    @foreach (var item in Model) { <article class="library-card">
+    <catalog-placeholder kind="SleepPrograms" alt="Иллюстрация раздела «Программы сна»">
+    </catalog-placeholder>
+    <div class="library-card-body">
+        <span class="pill">Сон и восстановление</span>
+        <h2>@item.Name</h2>
+        <p>@item.Description</p>
+        <div class="library-meta">
+            <span>@item.Weeks нед.</span>
+        </div>
+        <a class="ghost full" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+    </div>
+</article> }
+</div>

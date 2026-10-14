@@ -1,0 +1,76 @@
+@model IEnumerable<FitnessProgram>
+@{
+    ViewData["Title"]="Программы тренировок";
+    var goals=(IEnumerable<FitnessGoal>)ViewBag.Goals;
+    var levels=(IEnumerable<TrainingLevel>)ViewBag.Levels;
+}
+<div class="page-head">
+    <div>
+        <h1>Программы тренировок</h1>
+        <p>Готовая база программ FitMind. Здесь можно только смотреть, фильтровать и добавить программу себе.</p>
+    </div>
+</div>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form method="get" class="filterbar library-filter">
+    <input name="q" value="@ViewBag.Q" placeholder="Поиск программ..."/>
+    <select name="goalId" data-current="@ViewBag.GoalId">
+        <option value="">Все цели</option>
+        @foreach(var x in goals){
+            <option value="@x.Id">@x.Name</option>
+        }
+    </select>
+    <select name="levelId" data-current="@ViewBag.LevelId">
+        <option value="">Все уровни</option>
+        @foreach(var x in levels){
+            <option value="@x.Id">@x.Name</option>
+        }
+    </select>
+    <select name="place" data-current="@ViewBag.Place">
+        <option value="">Любое место</option>
+        <option>Дом</option>
+        <option>Зал</option>
+        <option>В любом месте</option>
+    </select>
+    <select name="sort" data-current="@ViewBag.Sort">
+        <option value="">По названию</option>
+        <option value="short">Сначала короткие</option>
+        <option value="long">Сначала длинные</option>
+    </select>
+    <button class="primary">Применить</button>
+</form>
+@if(!Model.Any()){
+    <div class="empty-state">
+        <div class="empty-icon">
+            <svg class="fm-icon" aria-hidden="true">
+                <use href="/icons/fitmind-icons.svg#dumbbell">
+                </use>
+            </svg>
+        </div>
+        <h2>Программы не найдены</h2>
+        <p>Измени фильтры или строку поиска.</p>
+    </div>
+}else{<div class="library-grid">
+@foreach(var p in Model){
+    <article class="library-card">
+        <catalog-placeholder kind="TrainingPrograms" alt="Иллюстрация раздела «Программы тренировок»">
+        </catalog-placeholder>
+        <div class="library-card-body">
+            <div class="tag-row">
+                <span class="pill">@p.GoalText</span>
+                <span class="pill subtle">@p.Level?.Name</span>
+            </div>
+            <h3>@p.Name</h3>
+            <p>@p.Description</p>
+            <div class="library-meta">
+                <span>@p.Weeks нед.</span>
+                <span>@p.WorkoutsPerWeek трен./нед.</span>
+                <span>@(p.AverageDurationMinutes??60) мин.</span>
+            </div>
+            <a asp-action="Details" asp-route-id="@p.Id" class="ghost full">Подробнее</a>
+        </div>
+    </article>
+}
+</div>
+}
+<partial name="_Pagination" model="(FitMind.ViewModels.PaginationVm)ViewBag.Pagination" />

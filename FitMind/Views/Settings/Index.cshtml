@@ -1,0 +1,137 @@
+@model UserProfile
+@{
+    ViewData["Title"] = "Настройки";
+}
+
+<section class="settings-hero" aria-labelledby="settings-title">
+    <div>
+        <span class="eyebrow">Личный кабинет</span>
+        <h1 id="settings-title">Настройки</h1>
+        <p>Управляйте уведомлениями, единицами измерения и оформлением.</p>
+    </div>
+</section>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form asp-action="Index" method="post" class="settings-page" data-settings-form>
+    <section class="panel settings-group" aria-labelledby="settings-notifications">
+        <div class="settings-group__head">
+            <span class="my-day-metric__icon purple">
+                <svg class="fm-icon" aria-hidden="true">
+                    <use href="/icons/fitmind-icons.svg#bell">
+                    </use>
+                </svg>
+            </span>
+            <div>
+                <h2 id="settings-notifications">Уведомления</h2>
+                <p>Напоминания о личных записях и запланированных событиях.</p>
+            </div>
+        </div>
+        <div class="settings-list">
+            <label class="setting-row">
+                <span>
+                    <b>Внутренние уведомления</b>
+                    <small>Показывать напоминания внутри FitMind.</small>
+                </span>
+                <input type="checkbox" name="notificationsEnabled" value="true" @(Model.NotificationsEnabled ? "checked" : null) />
+            </label>
+        </div>
+    </section>
+    <section class="panel settings-group" aria-labelledby="settings-quiet">
+        <div class="settings-group__head">
+            <span class="my-day-metric__icon blue">
+                <svg class="fm-icon" aria-hidden="true">
+                    <use href="/icons/fitmind-icons.svg#moon">
+                    </use>
+                </svg>
+            </span>
+            <div>
+                <h2 id="settings-quiet">Тихие часы</h2>
+                <p>В выбранный период приложение не создаёт напоминания.</p>
+            </div>
+        </div>
+        <div class="settings-list">
+            <label class="setting-row">
+                <span>
+                    <b>Включить тихие часы</b>
+                    <small>Используйте для сна, работы или отдыха.</small>
+                </span>
+                <input type="checkbox" name="quietHoursEnabled" value="true" @(Model.QuietHoursEnabled ? "checked" : null) />
+            </label>
+            <div class="setting-row settings-time-row">
+                <span>
+                    <b>Период</b>
+                    <small>Время начала и окончания тихого режима.</small>
+                </span>
+                <div class="inline-fields">
+                    <label>Начало<input type="time" name="quietStart" value="@(Model.QuietStart?.ToString("hh\\:mm"))" />
+                </label>
+                <label>Окончание<input type="time" name="quietEnd" value="@(Model.QuietEnd?.ToString("hh\\:mm"))" />
+            </label>
+        </div>
+    </div>
+</div>
+</section>
+<section class="panel settings-group" aria-labelledby="settings-display">
+    <div class="settings-group__head">
+        <span class="my-day-metric__icon amber">
+            <svg class="fm-icon" aria-hidden="true">
+                <use href="/icons/fitmind-icons.svg#settings">
+                </use>
+            </svg>
+        </span>
+        <div>
+            <h2 id="settings-display">Отображение</h2>
+            <p>Эти параметры применяются ко всему интерфейсу FitMind.</p>
+        </div>
+    </div>
+    <div class="settings-list">
+        <label class="setting-row">
+            <span>
+                <b>Единицы измерения</b>
+                <small>Единицы в профиле, дневниках и калькуляторах.</small>
+            </span>
+            <select name="units" data-current="@Model.Units">
+                <option>Метрические</option>
+                <option>Имперские</option>
+            </select>
+        </label>
+        <label class="setting-row">
+            <span>
+                <b>Тема</b>
+                <small>Предпросмотр применяется сразу; сохранение закрепляет выбор в профиле.</small>
+            </span>
+            <select name="theme" data-theme-select data-current="@Model.Theme">
+                <option value="Тёмная">Тёмная</option>
+                <option value="Светлая">Светлая</option>
+                <option value="Системная">Системная</option>
+            </select>
+        </label>
+    </div>
+</section>
+<section class="panel settings-group">
+    <div class="settings-group__head">
+        <div>
+            <h2>Конфиденциальность</h2>
+            <p>Получите копию всех своих данных.</p>
+        </div>
+    </div>
+    <div class="settings-list">
+        <a asp-action="ExportData" class="ghost">Скачать мои данные (JSON)</a>
+    </div>
+</section>
+<div class="settings-actions">
+    <a asp-controller="Profile" asp-action="Index" class="ghost">Вернуться в профиль</a>
+    <button class="primary" type="submit">Сохранить настройки</button>
+</div>
+</form>
+
+<script>
+(() => {
+    const select = document.querySelector('[data-theme-select]');
+    if (!select) return;
+    select.addEventListener('change', () => {
+        const value = select.value;
+        document.documentElement.dataset.theme = value === 'Светлая' ? 'light' : value === 'Системная' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : 'dark';
+    });
+})();
+</script>

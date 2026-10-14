@@ -1,0 +1,98 @@
+@model LoginVm
+@using Microsoft.AspNetCore.Authentication
+@{
+    Layout = null;
+}
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Вход — FitMind</title>
+        <link rel="stylesheet" href="/css/site.css" />
+        <link rel="stylesheet" href="/css/refinement.css"/>
+        <link rel="stylesheet" href="/css/public-pages.css" asp-append-version="true" />
+    </head>
+    <body class="auth-v04-page">
+        <a class="auth-v04-logo" href="/" aria-label="FitMind">
+            <svg aria-hidden="true" class="fm-icon auth-v04-logo-icon">
+                <use href="/icons/fitmind-icons.svg#logo">
+                </use>
+            </svg>
+            <b>Fit<span>Mind</span>
+        </b>
+    </a>
+    <main class="auth-v04-wrap">
+        <form asp-action="Login" method="post" class="auth-v04-card auth-v04-login-card">
+            <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+            <div class="auth-v04-brand-center">
+                <svg aria-hidden="true" class="fm-icon">
+                    <use href="/icons/fitmind-icons.svg#logo">
+                    </use>
+                </svg>
+                <b>Fit<span>Mind</span>
+            </b>
+        </div>
+        <div class="auth-v04-title">
+            <h1>Снова с нами?</h1>
+            <p>Войди в свой аккаунт и продолжай путь<br />к лучшей форме.</p>
+        </div>
+
+        @if (TempData["Ok"] != null) { <div class="toast" role="status">@TempData["Ok"]</div> }
+        @if (TempData["Error"] != null) { <div class="validation">@TempData["Error"]</div> }
+        <div asp-validation-summary="All" class="validation" role="alert" tabindex="-1">
+        </div>
+        <button class="auth-v04-google" type="submit" formnovalidate asp-action="ExternalLogin" asp-route-returnUrl="@ViewBag.ReturnUrl" name="provider" value="Google">
+            <img class="google-icon" src="/icons/google.svg" alt="" width="20" height="20" />Войти через Google</button>
+            <div class="auth-v04-separator" aria-hidden="true">
+                <span>
+                </span>
+                <em>или войдите по email</em>
+                <span>
+                </span>
+            </div>
+            <label class="auth-v04-field">
+                <span>Email</span>
+                <span class="auth-v04-input">
+                    <svg aria-hidden="true" class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#mail">
+                        </use>
+                    </svg>
+                    <input asp-for="Email" placeholder="Введите ваш email..." autocomplete="email" />
+                </span>
+                <span asp-validation-for="Email" class="validation">
+                </span>
+            </label>
+            <label class="auth-v04-field">
+                <span>Пароль</span>
+                <span class="auth-v04-input">
+                    <svg aria-hidden="true" class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#lock">
+                        </use>
+                    </svg>
+                    <input asp-for="Password" placeholder="Введите пароль..." autocomplete="current-password" />
+                    <button type="button" class="password-toggle" aria-pressed="false" aria-label="Показать пароль">
+                        <svg aria-hidden="true" class="fm-icon">
+                            <use href="/icons/fitmind-icons.svg#eye">
+                            </use>
+                        </svg>
+                    </button>
+                </span>
+                <span asp-validation-for="Password" class="validation">
+                </span>
+            </label>
+            <div class="auth-v04-options">
+                <label class="auth-v04-remember">
+                    <input asp-for="RememberMe" />
+                    <span>Запомнить меня</span>
+                </label>
+                <a asp-action="ForgotPassword">Забыли пароль?</a>
+            </div>
+            <button class="auth-v04-primary" type="submit">Войти <span>→</span>
+        </button>
+        <p class="auth-v04-bottom">Нет аккаунта? <a asp-action="Register">Зарегистрируйтесь</a>
+    </p>
+</form>
+</main>
+<script src="/js/site.js"></script></body>
+</html>

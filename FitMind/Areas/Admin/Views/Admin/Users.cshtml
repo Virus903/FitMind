@@ -1,0 +1,46 @@
+@model IEnumerable<ApplicationUser>
+@{
+    ViewData["Title"] = "Пользователи";
+    var page = (int)ViewBag.Page;
+    var total = (int)ViewBag.TotalPages;
+}
+<section class="admin-page-head">
+    <div>
+        <h1>Пользователи</h1>
+        <p>Просмотр учётных записей, поиск и безопасная блокировка.</p>
+    </div>
+</section>
+<form method="get" class="admin-filter">
+    <input name="q" value="@ViewBag.Query" placeholder="Email или имя пользователя" />
+    <button class="primary">Найти</button>
+</form>
+<section class="admin-panel table-wrap">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Подтверждён</th>
+                <th>Статус</th>
+                <th>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model) { <tr>
+            <td>@user.Email</td>
+            <td>@(user.EmailConfirmed ? "Да" : "Нет")</td>
+            <td>@(user.LockoutEnd > DateTimeOffset.UtcNow ? "Заблокирован" : "Активен")</td>
+            <td>
+                <a class="ghost small" asp-action="UserDetails" asp-route-id="@user.Id">Открыть</a>
+            </td>
+        </tr> }
+    </tbody>
+</table>
+</section>
+@if (total > 1) { var from = Math.Max(1, page - 2); var to = Math.Min(total, page + 2); <nav class="admin-pages" aria-label="Страницы пользователей">
+@if(from > 1) { <a asp-route-q="@ViewBag.Query" asp-route-page="1">1</a>
+<span>…</span> }
+@for (var i=from;i<=to;i++) { <a class="@(i==page?"active":"")" asp-route-q="@ViewBag.Query" asp-route-page="@i">@i</a> }
+@if(to < total) { <span>…</span>
+<a asp-route-q="@ViewBag.Query" asp-route-page="@total">@total</a> }
+</nav> }

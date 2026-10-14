@@ -1,0 +1,157 @@
+@{
+    var c = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string A(params string[] names) => names.Contains(c) ? "active" : "";
+}
+<aside class="sidebar">
+    <button type="button" class="ghost mobile-close" aria-label="Закрыть меню">Закрыть меню</button>
+    <div class="brand" aria-label="FitMind">
+        <svg class="fm-icon brand-icon" aria-hidden="true">
+            <use href="/icons/fitmind-icons.svg#logo">
+            </use>
+        </svg>
+        <b>Fit<span>Mind</span>
+    </b>
+</div>
+<nav class="sidebar-nav">
+    <div class="nav-group-label">МОИ ДАННЫЕ</div>
+    <a class="@A("Schedule")" asp-controller="Schedule" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#calendar">
+            </use>
+        </svg>
+        <span>Мой день</span>
+    </a>
+    <a class="@A("MyWorkouts","WorkoutManager")" asp-controller="MyWorkouts" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#dumbbell">
+            </use>
+        </svg>
+        <span>Мои тренировки</span>
+    </a>
+    <a class="@A("FoodDiary")" asp-controller="FoodDiary" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#nutrition">
+            </use>
+        </svg>
+        <span>Питание и вода</span>
+    </a>
+    <a class="@A("MyRecovery")" asp-controller="MyRecovery" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#moon">
+            </use>
+        </svg>
+        <span>Сон и восстановление</span>
+    </a>
+    <a class="@A("MySupplements")" asp-controller="MySupplements" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#supplement">
+            </use>
+        </svg>
+        <span>Мои добавки</span>
+    </a>
+    <a class="@A("Measurements")" asp-controller="Measurements" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#target">
+            </use>
+        </svg>
+        <span>Мои замеры</span>
+    </a>
+    <a class="@A("Calculators")" asp-controller="Calculators" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#calculator">
+            </use>
+        </svg>
+        <span>Калькуляторы</span>
+    </a>
+    <div class="nav-group-label nav-gap">БАЗЫ FITMIND</div>
+    <a class="@A("Programs")" asp-controller="Programs" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#article">
+            </use>
+        </svg>
+        <span>Программы тренировок</span>
+    </a>
+    <a class="@A("NutritionPrograms")" asp-controller="NutritionPrograms" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#nutrition">
+            </use>
+        </svg>
+        <span>Программы питания</span>
+    </a>
+    <a class="@A("SleepPrograms")" asp-controller="SleepPrograms" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#moon">
+            </use>
+        </svg>
+        <span>Программы сна</span>
+    </a>
+    <a class="@A("Exercises")" asp-controller="Exercises" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#dumbbell">
+            </use>
+        </svg>
+        <span>Упражнения</span>
+    </a>
+    <a class="@A("FoodLibrary")" asp-controller="FoodLibrary" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#nutrition">
+            </use>
+        </svg>
+        <span>Продукты и рецепты</span>
+    </a>
+    <a class="@A("RecoveryLibrary")" asp-controller="RecoveryLibrary" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#moon">
+            </use>
+        </svg>
+        <span>Методы восстановления</span>
+    </a>
+    <a class="@A("SupplementLibrary")" asp-controller="SupplementLibrary" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#supplement">
+            </use>
+        </svg>
+        <span>Добавки</span>
+    </a>
+    <a class="@A("Knowledge")" asp-controller="Knowledge" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#book">
+            </use>
+        </svg>
+        <span>База знаний</span>
+    </a>
+    <div class="nav-group-label nav-gap">УПРАВЛЕНИЕ</div>
+    <a class="@A("Profile")" asp-controller="Profile" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#user">
+            </use>
+        </svg>
+        <span>Профиль</span>
+    </a>
+    <a class="@(c == "Settings" && action == "Account" ? "active" : "")" asp-controller="Settings" asp-action="Account">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#lock">
+            </use>
+        </svg>
+        <span>Аккаунт и безопасность</span>
+    </a>
+    <a class="@(c == "Settings" && action != "Account" ? "active" : "")" asp-controller="Settings" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#settings">
+            </use>
+        </svg>
+        <span>Настройки</span>
+    </a>
+    @if (User.IsInRole("Администратор"))
+    {
+    <a class="@A("Admin")" asp-area="Admin" asp-controller="Admin" asp-action="Index">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#settings">
+            </use>
+        </svg>
+        <span>Админ-панель</span>
+    </a>
+}
+</nav>
+</aside>

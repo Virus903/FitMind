@@ -1,0 +1,161 @@
+@model UserProgramEditVm
+@using FitMind.Models
+@{ ViewData["Title"]="Программа тренировок"; var exercises=(IEnumerable<Exercise>)ViewBag.Exercises; var mine=(IEnumerable<Exercise>)ViewBag.MyExercises; var covers=(List<string>)ViewBag.Covers; var weekdays=new[]{"Вс","Пн","Вт","Ср","Чт","Пт","Сб"};
+   // Один список упражнений: сначала мои, потом база FitMind.
+   Func<int?,Microsoft.AspNetCore.Html.IHtmlContent> options = selected => new Microsoft.AspNetCore.Html.HtmlString(
+     (mine.Any()? "<optgroup label=\"Мои упражнения\">"+string.Concat(mine.Select(e=>$"<option value=\"{e.Id}\"{(selected==e.Id?" selected":"")}>{System.Net.WebUtility.HtmlEncode(e.Name)}</option>"))+"</optgroup>" : "")
+     +"<optgroup label=\"База FitMind\">"+string.Concat(exercises.Select(e=>$"<option value=\"{e.Id}\"{(selected==e.Id?" selected":"")}>{System.Net.WebUtility.HtmlEncode(e.Name)}</option>"))+"</optgroup>"); }
+<a asp-action="Index" class="back">← Назад</a>
+<div class="page-head">
+    <div>
+        <h1>@(Model.Id.HasValue ? "Настроить программу" : "Создать программу")</h1>
+        <p>У каждого дня — свой набор упражнений и точный слот в расписании.</p>
+    </div>
+</div>
+<link rel="stylesheet" href="~/css/program-editor.css" asp-append-version="true" />
+<form asp-action="CreateProgram" method="post" enctype="multipart/form-data" class="program-builder-grid" data-program-editor>
+    <input asp-for="Id" type="hidden" />
+    <section class="panel form-shell">
+        <div asp-validation-summary="All" class="validation">
+        </div>
+        <h2>Основная информация</h2>
+        <div class="form-grid two">
+            <label>Название программы<input asp-for="Name" />
+        </label>
+        <label>Цель<input asp-for="GoalName" />
+    </label>
+</div>
+<div class="form-grid two">
+    <label>Длительность, недель<input asp-for="Weeks" type="number" />
+</label>
+<label>Тренировочных дней<input value="@Model.Days.Count" readonly aria-describedby="days-help" />
+</label>
+</div>
+<small id="days-help">Количество дней определяется ниже. Завершённая история сохраняется.</small>
+<label>Дата старта<input asp-for="StartDate" type="date" required />
+</label>
+<label>Описание<textarea asp-for="Description" rows="3"></textarea></label>
+<input asp-for="Image" type="hidden"/>
+<label>Своя обложка (PNG, JPEG, WebP до 2 МБ, необязательно)<input asp-for="CoverFile" type="file" accept="image/png,image/jpeg,image/webp" />
+</label>
+<catalog-placeholder class="program-cover-preview" kind="TrainingPrograms" custom-src="@Model.Image" alt="Обложка программы">
+</catalog-placeholder>
+<label>Поиск упражнения<input type="search" data-exercise-search placeholder="Начните вводить название — список упражнений ниже отфильтруется" />
+</label>
+<div data-days>
+    @for(var dayIndex=0; dayIndex<Model.Days.Count; dayIndex++) { var day=Model.Days[dayIndex];
+    <section class="panel program-day" data-day>
+        <h2 data-day-heading>Тренировочный день @(dayIndex+1)</h2>
+        <input asp-for="Days[dayIndex].Id" type="hidden" />
+        <div class="form-grid two">
+            <label>Название<input asp-for="Days[dayIndex].Name" />
+        </label>
+        <label>День недели<select asp-for="Days[dayIndex].DayOfWeek">
+        @for(var i=0;i<weekdays.Length;i++){
+            <option value="@i">@weekdays[i]</option>
+        }
+    </select>
+</label>
+<label>Время<input asp-for="Days[dayIndex].Time" type="time" />
+</label>
+</div>
+<h3>Упражнения</h3>
+<div data-exercises>
+    @for(var exerciseIndex=0; exerciseIndex<day.Exercises.Count; exerciseIndex++) {
+        <div class="exercise-editor grid" data-exercise>
+            <label>Упражнение<select name="Days[@dayIndex].Exercises[@exerciseIndex].ExerciseId" required>@options(day.Exercises[exerciseIndex].ExerciseId)</select>
+        </label>
+        <label>Подходы<input asp-for="Days[dayIndex].Exercises[exerciseIndex].Sets" type="number" />
+    </label>
+    <label>Повторения<input asp-for="Days[dayIndex].Exercises[exerciseIndex].Reps" type="number" />
+</label>
+<label>Вес, кг<input asp-for="Days[dayIndex].Exercises[exerciseIndex].WorkingWeightKg" type="number" step="0.5" />
+</label>
+<label>Длительность, сек<input asp-for="Days[dayIndex].Exercises[exerciseIndex].DurationSeconds" type="number" min="0" max="32767" />
+</label>
+<label>Отдых, сек<input asp-for="Days[dayIndex].Exercises[exerciseIndex].RestSeconds" type="number" />
+</label>
+<label>Комментарий<input asp-for="Days[dayIndex].Exercises[exerciseIndex].Comment" />
+</label>
+<div class="editor-actions">
+    <button type="button" class="ghost" data-up>Выше</button>
+    <button type="button" class="ghost" data-down>Ниже</button>
+    <button type="button" class="ghost" data-remove-exercise>Убрать упражнение</button>
+</div>
+</div>
+}
+</div>
+<div class="editor-actions">
+    <button type="button" class="ghost" data-add-exercise>Добавить упражнение</button>
+    <button type="button" class="ghost" data-remove-day>Убрать день</button>
+</div>
+</section>
+}
+</div>
+<button type="button" class="primary" data-add-day>+ Добавить день</button>
+<p class="muted" data-editor-status aria-live="polite">
+</p>
+</section>
+<aside class="panel builder-side">
+    <h2>Расписание</h2>
+    <p>Активная программа автоматически добавит тренировку в «Мой день» в указанный день недели и время.</p>
+    <p class="muted">Добавьте до 7 дней. Для каждого дня выберите собственные упражнения. Кнопки «Выше» и «Ниже» меняют порядок выполнения.</p>
+    <button class="primary full" type="submit">Сохранить программу</button>
+</aside>
+</form>
+<template id="program-exercise-template">
+    <div class="exercise-editor grid" data-exercise>
+        <label>Упражнение<select data-field="ExerciseId" required>
+        <option value="">Выберите упражнение</option>@options(null)</select>
+    </label>
+    <label>Подходы<input data-field="Sets" type="number" value="3" min="1" max="30" required />
+</label>
+<label>Повторения<input data-field="Reps" type="number" value="10" min="0" max="1000" />
+</label>
+<label>Вес, кг<input data-field="WorkingWeightKg" type="number" min="0" max="2000" step="0.5" />
+</label>
+<label>Длительность, сек<input data-field="DurationSeconds" type="number" min="0" max="32767" />
+</label>
+<label>Отдых, сек<input data-field="RestSeconds" type="number" min="0" max="3600" value="60" />
+</label>
+<label>Комментарий<input data-field="Comment" maxlength="1000" />
+</label>
+<div class="editor-actions">
+    <button type="button" class="ghost" data-up>Выше</button>
+    <button type="button" class="ghost" data-down>Ниже</button>
+    <button type="button" class="ghost" data-remove-exercise>Убрать упражнение</button>
+</div>
+</div>
+</template>
+<template id="program-day-template">
+    <section class="panel program-day" data-day>
+        <h2 data-day-heading>
+        </h2>
+        <div class="form-grid two">
+            <label>Название<input data-field="Name" required maxlength="120" />
+        </label>
+        <label>День недели<select data-field="DayOfWeek">
+        @for(var i=0;i<weekdays.Length;i++){
+            <option value="@i">@weekdays[i]</option>
+        }
+    </select>
+</label>
+<label>Время<input data-field="Time" type="time" value="18:00" required />
+</label>
+</div>
+<h3>Упражнения</h3>
+<div data-exercises>
+</div>
+<div class="editor-actions">
+    <button type="button" class="ghost" data-add-exercise>Добавить упражнение</button>
+    <button type="button" class="ghost" data-remove-day>Убрать день</button>
+</div>
+</section>
+</template>
+<script src="~/js/program-editor.js" asp-append-version="true" defer></script>
+@if(Model.Id.HasValue){
+    <form asp-action="DeleteProgram" method="post" data-confirm="Удалить программу? История тренировок сохранится.">
+        <input name="id" value="@Model.Id" type="hidden"/>
+        <button class="ghost">Удалить программу</button>
+    </form>
+}

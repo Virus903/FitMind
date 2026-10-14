@@ -1,0 +1,59 @@
+@model FitMind.Models.FoodProduct
+@{
+    ViewData["Title"]=Model.Name;
+}
+<a asp-action="Index" class="back">← Продукты и рецепты</a>
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="Food" alt="Иллюстрация раздела «Продукты и рецепты»">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">Рецепт · @Model.Category?.Name</span>
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+        <div class="macro-cards">
+            <div>
+                <small>Калории</small>
+                <b>@Model.Calories.ToString("0") ккал</b>
+            </div>
+            <div>
+                <small>Белки</small>
+                <b>@Model.Protein.ToString("0") г</b>
+            </div>
+            <div>
+                <small>Жиры</small>
+                <b>@Model.Fat.ToString("0") г</b>
+            </div>
+            <div>
+                <small>Углеводы</small>
+                <b>@Model.Carbs.ToString("0") г</b>
+            </div>
+        </div>
+        <div class="detail-actions">
+            <a asp-controller="FoodDiary" asp-action="AddMeal" asp-route-productId="@Model.Id" class="primary">Записать приём пищи</a>
+            <form asp-controller="FoodDiary" asp-action="AddFoodFromBase" method="post">
+                <input type="hidden" name="id" value="@Model.Id"/>
+                <button class="ghost">Добавить в мои рецепты</button>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="recipe-detail-grid">
+    <section class="detail-card">
+        <h2>Состав</h2>
+        @if(Model.Ingredients.Any()){@foreach(var i in Model.Ingredients.OrderBy(x=>x.Order)){
+            <div class="data-line">
+                <span>@(i.Product?.Name??i.Name)</span>
+                <b>@i.Grams г</b>
+            </div>
+        }}else{<p>Состав пока не указан.</p>
+    }
+</section>
+<section class="detail-card">
+    <h2>Приготовление</h2>
+    <p class="preline">@(string.IsNullOrWhiteSpace(Model.Instructions)?"Инструкция пока не указана.":Model.Instructions)</p>
+    <div class="data-line">
+        <span>Время приготовления</span>
+        <b>@(Model.PreparationMinutes?.ToString()??"—") мин.</b>
+    </div>
+</section>
+</div>

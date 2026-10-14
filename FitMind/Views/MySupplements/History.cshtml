@@ -1,0 +1,21 @@
+@model List<DayEntry>
+@{
+    ViewData["Title"] = "История приёма добавок";
+}
+<section class="page-head">
+    <div>
+        <span class="eyebrow">Мои добавки</span>
+        <h1>История приёмов</h1>
+    </div>
+    <a class="ghost" asp-action="Index">Назад</a>
+</section>
+<section class="panel">
+    @if (!Model.Any()) { <p class="muted">Записей пока нет.</p> }
+    @foreach (var item in Model) { <div class="record-row">
+    <div>
+        <b>@item.Title</b>
+        <small>@item.Start.ToString("dd.MM.yyyy HH:mm") · @item.Comment</small>
+    </div>
+    <span>@(item.Status == DayEntryStatus.Done ? "Принято" : "Пропущено")</span>
+</div> }
+</section>

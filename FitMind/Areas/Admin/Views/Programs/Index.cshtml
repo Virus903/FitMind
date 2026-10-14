@@ -1,0 +1,34 @@
+@model IEnumerable<FitMind.Models.FitnessProgram>
+@{
+    ViewData["Title"] = "Программы тренировок";
+}
+<div class="admin-page-head">
+    <div>
+        <h1>Программы тренировок</h1>
+        <p>Программы, тренировочные дни и упражнения каждого дня.</p>
+    </div>
+    <a class="primary" asp-action="Edit">Создать программу</a>
+</div>
+<form method="get" class="admin-filter">
+    <input name="q" value="@ViewBag.Query" aria-label="Название программы" placeholder="Найти программу"/>
+    <button class="primary">Найти</button>
+</form>
+<div class="admin-program-list">
+    @foreach(var p in Model){
+        <article>
+            <catalog-placeholder kind="TrainingPrograms" custom-src="@p.Image" alt="Обложка @p.Name">
+            </catalog-placeholder>
+            <div>
+                <span class="admin-status @(p.Active?"is-active":"")">• @(p.Active?"Опубликована":"Скрыта")</span>
+                <h2>@p.Name</h2>
+                <p>@p.Weeks нед. · @p.WorkoutsPerWeek тренировок в неделю</p>
+                <a class="ghost" asp-action="Edit" asp-route-id="@p.Id">✎ Редактировать</a>
+            </div>
+        </article>
+    }
+</div>
+<nav class="admin-pages">
+    @for(int i=Math.Max(1,(int)ViewBag.Page-2);i<=Math.Min((int)ViewBag.Pages,(int)ViewBag.Page+2);i++){
+        <a asp-route-page="@i" asp-route-q="@ViewBag.Query">@i</a>
+    }
+</nav>

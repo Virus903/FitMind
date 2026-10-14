@@ -1,0 +1,94 @@
+@model FitMind.Models.FitnessProgram
+@{
+    ViewData["Title"]=Model.Id==0?"Новая программа питания":Model.Name;
+}
+<div class="admin-page-head">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Основные параметры и ежедневные приёмы пищи.</p>
+    </div>
+    <a class="ghost" asp-action="Index">К списку</a>
+</div>
+<form asp-action="Save" method="post" enctype="multipart/form-data" class="admin-form admin-program-editor">
+    <input type="hidden" name="id" value="@Model.Id"/>
+    <section class="admin-editor-main">
+        <h2>Основная информация</h2>
+        <label>Название<input name="name" value="@Model.Name" required/>
+    </label>
+    <label>Цель<input name="goalText" value="@Model.GoalText"/>
+</label>
+<label>Описание<textarea name="description">@Model.Description</textarea></label>
+<div class="form-grid">
+    <label>Ккал в день<input type="number" name="caloriesPerDay" value="@Model.CaloriesPerDay" min="500" max="10000" required/>
+</label>
+<label>Вода, мл<input type="number" name="waterMl" value="@Model.WaterMl" min="250" max="10000" required/>
+</label>
+<label>Недель<input type="number" name="weeks" value="@Model.Weeks" min="1" max="104" required/>
+</label>
+</div>
+</section>
+<section class="admin-image-field">
+    <h2>Изображение</h2>
+    <catalog-placeholder kind="NutritionPrograms" custom-src="@Model.Image" alt="Обложка программы питания">
+    </catalog-placeholder>
+    <label class="admin-file-button">Выбрать изображение<input name="imageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+@if(!string.IsNullOrWhiteSpace(Model.Image)){
+    <label class="check">
+        <input name="removeImage" type="checkbox" value="true"/>Удалить текущее изображение</label>
+    }
+</section>
+<section class="admin-publish">
+    <h2>Публикация</h2>
+    <label class="check">
+        <input type="checkbox" name="active" value="true" checked="@Model.Active"/> Опубликована</label>
+    </section>
+    <div class="form-actions admin-program-actions">
+        <a class="ghost" asp-action="Index">Отмена</a>
+        <button class="primary">@(Model.Id==0?"Сохранить программу":"Сохранить изменения")</button>
+        @if(Model.Id>0){
+            <button type="submit" class="danger" formaction="@Url.Action("Delete")" formmethod="post" data-confirm="Удалить программу питания?">Удалить</button>
+        }
+    </div>
+</form>
+@if(Model.Id!=0){
+    <section class="admin-panel admin-editor-width">
+        <h2>Распорядок</h2>
+        @foreach(var x in Model.Items.OrderBy(x=>x.Order)){
+            <form asp-action="SaveItem" method="post" class="admin-inline-form">
+                <input type="hidden" name="programId" value="@Model.Id"/>
+                <input type="hidden" name="id" value="@x.Id"/>
+                <select name="type" data-current="@x.Type">
+                    <option value="Meal">Приём пищи</option>
+                    <option value="Water">Вода</option>
+                </select>
+                <input name="title" value="@x.Title" required/>
+                <input type="time" name="time" value="@x.Time?.ToString(@"hh\:mm")" required/>
+                <input type="number" name="calories" value="@x.Calories" placeholder="Ккал"/>
+                <input type="number" name="waterMl" value="@x.WaterMl" placeholder="Вода, мл"/>
+                <input type="number" name="order" value="@x.Order" min="1" required/>
+                <button class="ghost">Сохранить</button>
+            </form>
+            <form asp-action="DeleteItem" method="post">
+                <input type="hidden" name="programId" value="@Model.Id"/>
+                <input type="hidden" name="id" value="@x.Id"/>
+                <button class="ghost">Удалить</button>
+            </form>
+        }
+        <h3>Добавить пункт</h3>
+        <form asp-action="SaveItem" method="post" class="admin-inline-form">
+            <input type="hidden" name="programId" value="@Model.Id"/>
+            <input type="hidden" name="id" value="0"/>
+            <select name="type">
+                <option value="Meal">Приём пищи</option>
+                <option value="Water">Вода</option>
+            </select>
+            <input name="title" placeholder="Название" required/>
+            <input type="time" name="time" required/>
+            <input type="number" name="calories" placeholder="Ккал"/>
+            <input type="number" name="waterMl" placeholder="Вода, мл"/>
+            <input type="number" name="order" min="1" value="@(Model.Items.Count+1)" required/>
+            <button class="primary">Добавить</button>
+        </form>
+    </section>
+}

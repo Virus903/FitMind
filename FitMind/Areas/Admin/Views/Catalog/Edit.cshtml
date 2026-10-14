@@ -1,0 +1,145 @@
+@model AdminContentVm
+@{
+    var entityName=Model.Kind switch{"exercises"=>"упражнение","products"=>"продукт","recipes"=>"рецепт","recovery"=>"метод восстановления","supplements"=>"добавку",_=>"статью"};
+    ViewData["Title"] = Model.Id.HasValue ? $"Редактировать {entityName}" : $"Новый {entityName}";
+    var categories = (IEnumerable<KeyValuePair<int,string>>)ViewBag.Categories;
+    var needsCategory = Model.Kind is "exercises" or "products" or "recipes" or "supplements" or "articles";
+    var placeholderKind=Model.Kind switch{"exercises"=>"Exercises","products" or "recipes"=>"Food","recovery"=>"Recovery","supplements"=>"Supplements",_=>"Knowledge"};
+}
+<section class="admin-page-head">
+    <div>
+        <a class="back-link" asp-action="Index" asp-route-kind="@Model.Kind">← К списку</a>
+        <h1>@ViewData["Title"]</h1>
+        <p>Обязательные поля отмечены валидацией сервера.</p>
+    </div>
+</section>
+<form asp-action="Save" method="post" enctype="multipart/form-data" class="admin-form admin-editor">
+    <input asp-for="Kind" type="hidden" />
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="Image" type="hidden"/>
+    <div asp-validation-summary="ModelOnly" class="validation">
+    </div>
+    <section class="admin-editor-main">
+        <h2>Основная информация</h2>
+        <label>Название<input asp-for="Name" />
+    </label>
+    <span asp-validation-for="Name" class="field-validation-error">
+    </span>
+    <label>Краткое описание<textarea asp-for="Description" rows="3"></textarea></label>
+    @if (needsCategory) { <label>Категория<select asp-for="CategoryId" required>
+    <option value="">Выберите категорию</option>
+    @foreach (var c in categories) { <option value="@c.Key">@c.Value</option> }
+</select>
+</label> }
+@if(Model.Kind=="exercises"){var muscles=(IEnumerable<KeyValuePair<int,string>>)ViewBag.Muscles;<fieldset>
+<legend>Группы мышц</legend>
+@foreach(var m in muscles){
+    <label class="check">
+        <input type="checkbox" name="MuscleIds" value="@m.Key" checked="@Model.MuscleIds.Contains(m.Key)"/>@m.Value</label>
+    }
+    <label>Основная группа<select asp-for="PrimaryMuscleId">
+    <option value="">Не выбрана</option>
+    @foreach(var m in muscles){
+        <option value="@m.Key">@m.Value</option>
+    }
+</select>
+</label>
+</fieldset>
+}
+</section>
+<aside class="admin-editor-side">
+    <section class="admin-image-field">
+        <h2>Изображение</h2>
+        <catalog-placeholder kind="@placeholderKind" custom-src="@Model.Image" alt="Текущее изображение">
+        </catalog-placeholder>
+        <label class="admin-file-button">Выбрать изображение<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+    </label>
+    <span asp-validation-for="ImageFile" class="field-validation-error">
+    </span>
+    @if(!string.IsNullOrWhiteSpace(Model.Image)){
+        <label class="check">
+            <input asp-for="RemoveImage"/> Удалить текущее изображение</label>
+        }
+    </section>
+    <section class="admin-publish">
+        <h2>Публикация</h2>
+        <label class="check">
+            <input asp-for="Active" /> Опубликовано и видно пользователям</label>
+        </section>
+    </aside>
+    <section class="admin-editor-details">
+        @if(Model.Kind is "products" or "recipes"){
+            <fieldset>
+                <legend>Пищевая ценность @(Model.Kind=="products"?"на 100 г":"на порцию")</legend>
+                <label>Порция, г<input asp-for="ServingGrams" type="number" min="0.01" step="0.01"/>
+            </label>
+            <label>Ккал<input asp-for="Calories" type="number" min="0" step="0.01" required="@(Model.Kind=="products")"/>
+        </label>
+        <label>Белки, г<input asp-for="Protein" type="number" min="0" step="0.01"/>
+    </label>
+    <label>Жиры, г<input asp-for="Fat" type="number" min="0" step="0.01"/>
+</label>
+<label>Углеводы, г<input asp-for="Carbs" type="number" min="0" step="0.01"/>
+</label>
+@if(Model.Kind=="products"){
+    <label>Клетчатка, г<input asp-for="Fiber" type="number" min="0" step="0.01"/>
+</label>
+<label>Гликемический индекс<input asp-for="GlycemicIndex" type="number" min="0" max="200"/>
+</label>
+}
+</fieldset>
+}
+@if(Model.Kind=="recipes"){
+    <label>Тип приёма пищи<input asp-for="Meta"/>
+</label>
+<label>Время приготовления, мин<input asp-for="PreparationMinutes" type="number" min="1" max="1440"/>
+</label>
+}
+else if(Model.Kind!="products"){<label>@(Model.Kind == "articles" ? "Минут чтения" : Model.Kind == "recovery" ? "Категория" : "Формат / уровень / тип")<input asp-for="Meta" />
+</label>
+}
+<label>Подробности / инструкция<textarea asp-for="Details" rows="8"></textarea></label>
+@if(Model.Kind is "products" or "recipes"){
+    <label>Советы<textarea asp-for="Tips" rows="4"></textarea></label>
+}
+</section>
+<div class="form-actions">
+    <span>@(Model.Id.HasValue?"Редактирование записи":"Новая запись")</span>
+    <a class="ghost" asp-action="Index" asp-route-kind="@Model.Kind">Отмена</a>
+    <button class="primary">@(Model.Id.HasValue?"Сохранить изменения":"Сохранить запись")</button>
+    @if(Model.Id.HasValue){
+        <a class="danger admin-edit-delete" asp-action="Delete" asp-route-kind="@Model.Kind" asp-route-id="@Model.Id">Удалить</a>
+    }
+</div>
+</form>
+@if(Model.Kind=="recipes"&&Model.Id.HasValue){var products=(IEnumerable<KeyValuePair<int,string>>)ViewBag.Products;var ingredients=(IEnumerable<FitMind.Models.RecipeIngredient>)ViewBag.Ingredients;<section class="admin-panel admin-editor-width">
+<h2>Ингредиенты</h2>
+<form asp-action="AddIngredient" method="post" class="admin-filter">
+    <input type="hidden" name="recipeId" value="@Model.Id"/>
+    <select name="productId">
+        <option value="">Свой ингредиент</option>
+        @foreach(var p in products){
+            <option value="@p.Key">@p.Value</option>
+        }
+    </select>
+    <input name="name" placeholder="Название" maxlength="180"/>
+    <input name="grams" type="number" min="0.1" step="0.1" placeholder="Граммы" required/>
+    <button class="primary">Добавить</button>
+</form>
+@foreach(var i in ingredients){
+    <form asp-action="EditIngredient" method="post" class="admin-ingredient">
+        <input type="hidden" name="recipeId" value="@Model.Id"/>
+        <input type="hidden" name="ingredientId" value="@i.Id"/>
+        <input name="order" type="number" min="1" value="@i.Order" aria-label="Порядок"/>
+        <input name="name" value="@i.Name" maxlength="180" required aria-label="Название"/>
+        <input name="grams" type="number" min="0.1" step="0.1" value="@i.Grams" required aria-label="Граммы"/>
+        <button class="ghost small">Сохранить</button>
+    </form>
+    <form asp-action="DeleteIngredient" method="post" class="admin-ingredient-delete">
+        <input type="hidden" name="recipeId" value="@Model.Id"/>
+        <input type="hidden" name="ingredientId" value="@i.Id"/>
+        <button class="danger ghost small">Удалить</button>
+    </form>
+}
+</section>
+}

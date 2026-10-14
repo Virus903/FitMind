@@ -1,0 +1,163 @@
+@model FitMind.Models.FitnessProgram
+@using FitMind.Models
+@{
+    ViewData["Title"] = Model.Id==0?"Новая программа":Model.Name;
+    var exercises=(IEnumerable<Exercise>)ViewBag.Exercises;
+}
+<div class="admin-page-head">
+    <div>
+        <a asp-action="Index" class="back-link">← Программы</a>
+        <h1>@ViewData["Title"]</h1>
+    </div>
+</div>
+<form asp-action="Save" method="post" enctype="multipart/form-data" class="admin-form admin-program-editor">
+    <input type="hidden" name="id" value="@Model.Id"/>
+    <section class="admin-editor-main">
+        <h2>Основная информация</h2>
+        <label>Название<input name="name" value="@Model.Name" required maxlength="180"/>
+    </label>
+    <label>Описание<textarea name="description" maxlength="4000">@Model.Description</textarea></label>
+    <label>Для кого<input name="forWhom" value="@Model.ForWhom" maxlength="500"/>
+</label>
+<label>Место тренировки<input name="place" value="@Model.Place" maxlength="180"/>
+</label>
+<label>Цель<select name="goalText">
+@foreach(var x in (IEnumerable<FitnessGoal>)ViewBag.Goals){
+    <option value="@x.Name" selected="@(x.Name==Model.GoalText)">@x.Name</option>
+}
+</select>
+</label>
+<label>Уровень<select name="levelId">
+@foreach(var x in (IEnumerable<TrainingLevel>)ViewBag.Levels){
+    <option value="@x.Id" selected="@(x.Id==Model.LevelId)">@x.Name</option>
+}
+</select>
+</label>
+<label>Недель<input type="number" name="weeks" value="@Model.Weeks" min="1" max="104" required/>
+</label>
+<label>Тренировок в неделю<input type="number" name="workoutsPerWeek" value="@Model.WorkoutsPerWeek" min="1" max="7" required/>
+</label>
+<label>Средняя длительность, мин<input type="number" name="averageDurationMinutes" value="@Model.AverageDurationMinutes" min="1" max="1440"/>
+</label>
+</section>
+<section class="admin-image-field">
+    <h2>Изображение</h2>
+    <catalog-placeholder kind="TrainingPrograms" custom-src="@Model.Image" alt="Обложка программы">
+    </catalog-placeholder>
+    <label class="admin-file-button">Выбрать изображение<input name="imageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+@if(!string.IsNullOrWhiteSpace(Model.Image)){
+    <label class="check">
+        <input name="removeImage" type="checkbox" value="true"/>Удалить текущее изображение</label>
+    }
+</section>
+<section class="admin-publish">
+    <h2>Публикация</h2>
+    <label class="check">
+        <input name="active" type="checkbox" value="true" checked="@Model.Active"/>Опубликована</label>
+    </section>
+    <div class="form-actions admin-program-actions">
+        <a class="ghost" asp-action="Index">Отмена</a>
+        <button class="primary">Сохранить изменения</button>
+        @if(Model.Id>0){
+            <button type="submit" class="danger" formaction="@Url.Action("Delete")" formmethod="post" data-confirm="Удалить программу со всеми днями?">Удалить</button>
+        }
+    </div>
+</form>
+@if(Model.Id>0){
+    <div class="admin-program-related">
+        @foreach(var d in Model.Items.OrderBy(x=>x.DayNumber)){
+            <section class="admin-panel">
+                <h2>День @d.DayNumber · @d.Title</h2>
+                <form asp-action="SaveDay" method="post" class="admin-form">
+                    <input type="hidden" name="programId" value="@Model.Id"/>
+                    <input type="hidden" name="id" value="@d.Id"/>
+                    <label>Номер дня<input type="number" name="dayNumber" value="@d.DayNumber" min="1" max="255"/>
+                </label>
+                <label>Название<input name="name" value="@d.Title" required maxlength="180"/>
+            </label>
+            <label>Описание<textarea name="description" maxlength="2000">@d.Description</textarea></label>
+            <button class="ghost">Сохранить день</button>
+        </form>
+        @foreach(var e in d.Exercises.OrderBy(x=>x.Order)){
+            <details class="admin-panel">
+                <summary>@e.Order. @e.Exercise?.Name · @e.Sets подхода</summary>
+                <form asp-action="SaveExercise" method="post" class="admin-form">
+                    <input type="hidden" name="programId" value="@Model.Id"/>
+                    <input type="hidden" name="dayId" value="@d.Id"/>
+                    <input type="hidden" name="id" value="@e.Id"/>
+                    <label>Упражнение<select name="exerciseId">
+                    @foreach(var x in exercises){
+                        <option value="@x.Id" selected="@(e.ExerciseId==x.Id)">@x.Name</option>
+                    }
+                </select>
+            </label>
+            <label>Порядок<input name="order" type="number" value="@e.Order" min="1" max="255"/>
+        </label>
+        <label>Подходы<input name="sets" type="number" value="@e.Sets" min="1" max="30"/>
+    </label>
+    <label>Повторения от<input name="repsMin" type="number" min="0" value="@e.RepsMin"/>
+</label>
+<label>Повторения до<input name="repsMax" type="number" min="0" value="@e.RepsMax"/>
+</label>
+<label>Длительность, сек<input name="durationSeconds" type="number" min="0" value="@e.Seconds"/>
+</label>
+<label>Отдых, сек<input name="restSeconds" type="number" min="0" value="@e.RestSeconds"/>
+</label>
+<label>Комментарий<textarea name="comment" maxlength="1000">@e.Comment</textarea></label>
+<button class="primary">Сохранить упражнение</button>
+</form>
+<form asp-action="DeleteExercise" method="post" data-confirm="Удалить упражнение из дня?">
+    <input type="hidden" name="programId" value="@Model.Id"/>
+    <input type="hidden" name="dayId" value="@d.Id"/>
+    <input type="hidden" name="id" value="@e.Id"/>
+    <button class="danger">Удалить упражнение</button>
+</form>
+</details>
+}
+<form asp-action="SaveExercise" method="post" class="admin-form">
+    <h3>Добавить упражнение</h3>
+    <input type="hidden" name="programId" value="@Model.Id"/>
+    <input type="hidden" name="dayId" value="@d.Id"/>
+    <label>Упражнение<select name="exerciseId">
+    @foreach(var x in exercises){
+        <option value="@x.Id">@x.Name</option>
+    }
+</select>
+</label>
+<label>Порядок<input name="order" type="number" value="@(d.Exercises.Count+1)" min="1" max="255"/>
+</label>
+<label>Подходы<input name="sets" type="number" value="3" min="1" max="30"/>
+</label>
+<label>Повторения от<input name="repsMin" type="number" min="0"/>
+</label>
+<label>Повторения до<input name="repsMax" type="number" value="10" min="0"/>
+</label>
+<label>Длительность, сек<input name="durationSeconds" type="number" min="0"/>
+</label>
+<label>Отдых, сек<input name="restSeconds" type="number" min="0"/>
+</label>
+<label>Комментарий<textarea name="comment" maxlength="1000"></textarea></label>
+<button class="primary">Добавить</button>
+</form>
+<form asp-action="DeleteDay" method="post" data-confirm="Удалить день и его упражнения?">
+    <input type="hidden" name="programId" value="@Model.Id"/>
+    <input type="hidden" name="id" value="@d.Id"/>
+    <button class="danger">Удалить день</button>
+</form>
+</section>
+}
+<section class="admin-panel">
+    <h2>Новый день</h2>
+    <form asp-action="SaveDay" method="post" class="admin-form">
+        <input type="hidden" name="programId" value="@Model.Id"/>
+        <label>Название<input name="name" required maxlength="180"/>
+    </label>
+    <label>Описание<textarea name="description" maxlength="2000"></textarea></label>
+    <label>Номер<input type="number" name="dayNumber" value="@(Model.Items.Select(x=>(int)x.DayNumber).DefaultIfEmpty().Max()+1)" min="1" max="255"/>
+</label>
+<button class="primary">Добавить день</button>
+</form>
+</section>
+</div>
+}

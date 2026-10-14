@@ -1,0 +1,46 @@
+@model IEnumerable<Notification>
+@{
+    ViewData["Title"]="Уведомления";
+}
+<div class="page-head">
+    <div>
+        <h1>Уведомления</h1>
+        <p>Напоминания обновляются при открытии раздела. Тихие часы и настройки учитываются; отправка писем не подключена.</p>
+    </div>
+    <a asp-controller="Settings" asp-action="Index" class="ghost">Настройки уведомлений</a>
+</div>
+@if(!Model.Any()){
+    <div class="empty-state">
+        <div class="empty-icon">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#bell">
+                </use>
+            </svg>
+        </div>
+        <h2>Пока нет уведомлений</h2>
+        <p>Здесь появятся напоминания о тренировках, режиме и других личных записях.</p>
+    </div>
+}else{<div class="cards-list">
+@foreach(var n in Model){
+    <div class="list-card @(n.Read?"":"unread")">
+        <div>
+            <span class="pill">@n.Type</span>
+            <h3>@n.Title</h3>
+            <p>@n.Text</p>
+            @if(!string.IsNullOrWhiteSpace(n.Link)&&Url.IsLocalUrl(n.Link)){
+                <a href="@n.Link" class="text-link">Открыть запись</a>
+            }
+            <small class="muted">@n.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+        </div>
+        @if(!n.Read){
+            <div asp-validation-summary="All" class="validation">
+            </div>
+            <form asp-action="MarkRead" method="post">
+                <input type="hidden" name="id" value="@n.Id"/>
+                <button class="ghost small">Отметить прочитанным</button>
+            </form>
+        }
+    </div>
+}
+</div>
+}

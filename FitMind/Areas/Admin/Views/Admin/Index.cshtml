@@ -1,0 +1,57 @@
+@model AdminDashboardVm
+@{
+    ViewData["Title"] = "Обзор";
+}
+<section class="admin-page-head">
+    <div>
+        <span class="admin-eyebrow">Обзор</span>
+        <h1>Панель управления</h1>
+        <p>Справочники и пользователи FitMind. Личные дневники здесь недоступны.</p>
+    </div>
+</section>
+<div class="admin-metrics">
+    <a asp-action="Users">
+        <strong>@Model.Users</strong>
+        <span>пользователей</span>
+    </a>
+    <a asp-controller="Catalog" asp-action="Index" asp-route-kind="exercises">
+        <strong>@Model.Exercises</strong>
+        <span>упражнений</span>
+    </a>
+    <a asp-controller="Catalog" asp-action="Index" asp-route-kind="products">
+        <strong>@Model.Products</strong>
+        <span>продуктов</span>
+    </a>
+    <a asp-controller="Catalog" asp-action="Index" asp-route-kind="recipes">
+        <strong>@Model.Recipes</strong>
+        <span>рецептов</span>
+    </a>
+    <a asp-controller="Catalog" asp-action="Index" asp-route-kind="supplements">
+        <strong>@Model.Supplements</strong>
+        <span>добавок</span>
+    </a>
+    <a asp-controller="Catalog" asp-action="Index" asp-route-kind="articles">
+        <strong>@Model.Articles</strong>
+        <span>статей</span>
+    </a>
+</div>
+<section class="admin-panel">
+    <div class="section-heading">
+        <div>
+            <h2>Последние действия</h2>
+            <p>Только административные операции; пароли и токены не журналируются.</p>
+        </div>
+    </div>
+    @if (!Model.RecentActions.Any()) { <div class="empty-state">
+    <h3>Действий пока нет</h3>
+    <p>После изменения справочника здесь появится запись аудита.</p>
+</div> }
+else { <div class="admin-audit">
+@foreach (var x in Model.RecentActions) { <div>
+<time>@x.OccurredAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</time>
+<b>@x.Action · @x.EntityType</b>
+<span>@x.Summary</span>
+<small>@x.Actor</small>
+</div> }
+</div> }
+</section>

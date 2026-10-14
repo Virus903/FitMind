@@ -1,0 +1,255 @@
+@model MyWorkoutsRedesignVm
+@using System.Globalization
+@using FitMind.Services
+@{
+    ViewData["Title"]="Мои тренировки";
+    var ru=new CultureInfo("ru-RU");
+    var first=Model.Month;
+    var offset=((int)first.DayOfWeek+6)%7;
+    var gridStart=first.AddDays(-offset);
+    var today=Model.TodayWorkout;
+}
+<div class="personal-workout-page">
+    <div class="page-head clean-head">
+        <div>
+            <h1>Мои тренировки</h1>
+            <p>Программы, свои упражнения и записи выполненных тренировок.</p>
+        </div>
+    </div>
+    <div class="personal-collections workout-collections">
+        <section class="panel compact-catalog my-programs-panel">
+            <div class="panel-head">
+                <h2>Мои программы <span class="count-badge">@Model.Programs.Count</span>
+            </h2>
+            <div>
+                <a asp-action="CreateProgram" class="primary small">+ Создать программу</a>
+                <a asp-controller="Programs" asp-action="Index" class="ghost small">Добавить из базы</a>
+            </div>
+        </div>
+        @if(!Model.Programs.Any()){
+            <div class="empty-line">
+                <b>Программ пока нет</b>
+                <span>Создай свою или добавь готовую из базы.</span>
+            </div>
+        }
+        @foreach(var p in Model.Programs){var days=p.Items.Where(x=>x.Time.HasValue).OrderBy(x=>((int)(x.DayOfWeek??DayOfWeek.Monday)+6)%7).Select(x=>x.DayOfWeek.HasValue?ru.DateTimeFormat.GetAbbreviatedDayName(x.DayOfWeek.Value)+" "+x.Time!.Value.ToString(@"hh\:mm"):"ежедневно").ToList();
+        <div class="catalog-row program-row">
+            <catalog-placeholder kind="TrainingPrograms" custom-src="@p.Image" alt="Обложка программы">
+            </catalog-placeholder>
+            <div>
+                <b>@p.Name</b>
+                <span>@(p.Weeks??8) недель · @p.Items.Count трен. дн. @(days.Any()?"· "+string.Join(", ",days):"· расписание не задано")</span>
+                <small>@(p.Description??"Личная программа тренировок")</small>
+            </div>
+            <div class="row-tags">
+                <span class="tag @(p.SourceProgramId.HasValue?"blue-tag":"")">@(p.SourceProgramId.HasValue?"из базы":"создана мной")</span>
+                <form asp-action="SetProgramActive" method="post">
+                    <input type="hidden" name="id" value="@p.Id"/>
+                    <input type="hidden" name="active" value="@(!p.Active)"/>
+                    <button class="status-pill @(p.Active?"on":"off")" title="Переключить активность">@(p.Active?"Активна":"Не активна")</button>
+                </form>
+                <div class="row-actions">
+                    <a class="ghost small" asp-action="ViewProgram" asp-route-id="@p.Id">Открыть</a>
+                    <a class="ghost small" asp-action="EditProgram" asp-route-id="@p.Id">Изменить</a>
+                    <form asp-action="DeleteProgram" method="post" data-confirm="Удалить программу? Выполненные тренировки останутся в записях.">
+                        <input type="hidden" name="id" value="@p.Id"/>
+                        <button class="ghost small">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</section>
+<section class="week-strip panel">
+    <div class="week-label">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#calendar">
+            </use>
+        </svg>
+        <div>
+            <b>Эта неделя</b>
+            <span>@Model.WeekStart.ToString("d MMM",ru) – @Model.WeekStart.AddDays(6).ToString("d MMM yyyy",ru)</span>
+        </div>
+    </div>
+    <div class="week-days">
+        @for(int i=0;i<7;i++){var d=Model.WeekStart.AddDays(i);var has=Model.CalendarWorkouts.Any(x=>x.Start.Date==d.Date&&x.Status!=DayEntryStatus.Skipped);<div class="week-day @(d.Date==DateTime.Today?"selected":"")">
+        <span>@d.ToString("ddd",ru)</span>
+        <b>@d.Day</b>
+        @if(has){
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#dumbbell">
+                </use>
+            </svg>
+        }else{<i>
+    </i>
+}
+</div>
+}
+</div>
+<a href="#calendar" class="ghost">Перейти в календарь →</a>
+</section>
+<section class="today-workout-card panel">
+    @if(today!=null){var plan=today.Sets.Any()?today.Sets.GroupBy(x=>x.ExerciseId).Select(g=>(Name:g.First().Exercise?.Name??"Упражнение",Count:g.Count())).ToList():today.ProgramItem?.Exercises.OrderBy(x=>x.Order).Select(x=>(Name:x.Exercise?.Name??"Упражнение",Count:(int)x.Sets)).ToList()??[];
+    <catalog-placeholder kind="TrainingPrograms" custom-src="@Model.ActiveProgram?.Image" alt="Тренировка">
+    </catalog-placeholder>
+    <div class="today-workout-copy">
+        <span class="tag">Сегодня · @today.Start.ToString("HH:mm")</span>
+        <h2>@today.Title</h2>
+        <p>Программа: <b>@(today.ProgramItemId.HasValue?(Model.ActiveProgram?.Name??today.Comment):"Своя тренировка")</b> · @(today.Value?.ToString("0")??"60") мин · @ProgramScheduleService.StatusText(today)</p>
+    </div>
+    <div class="today-plan">
+        <b>План на сегодня</b>
+        @foreach(var e in plan.Take(3)){
+            <span>○ @e.Name <em>— @e.Count подх.</em>
+        </span>
+    }
+    @if(plan.Count>3){
+        <small>+ @(plan.Count-3) упражнения</small>
+    }
+</div>
+<div class="today-workout-actions">
+    @if(today.Status==DayEntryStatus.Done){
+        <a asp-action="Details" asp-route-id="@today.Id" class="ghost">Результат</a>
+    }else{<form asp-action="StartToday" method="post">
+    <input type="hidden" name="id" value="@today.Id"/>
+    <button class="primary">▶ Начать тренировку</button>
+</form>
+}
+</div>
+}else{
+<div class="empty-inline wide">
+    <svg class="fm-icon big-icon">
+        <use href="/icons/fitmind-icons.svg#dumbbell">
+        </use>
+    </svg>
+    <div>
+        <h2>Сегодняшняя тренировка не назначена</h2>
+        <p>Сделай программу активной или создай тренировку вручную.</p>
+    </div>
+    <a asp-action="Create" class="primary">Создать тренировку</a>
+</div>
+}
+</section>
+<section class="panel compact-catalog">
+    <div class="panel-head">
+        <h2>Мои упражнения</h2>
+        <div>
+            <a asp-action="CreateExercise" class="primary small">+ Создать упражнение</a>
+            <a asp-controller="Exercises" asp-action="Index" class="ghost small">Добавить из базы</a>
+        </div>
+    </div>
+    @if(!Model.Exercises.Any()){
+        <div class="empty-line">
+            <b>Упражнений пока нет</b>
+            <span>Создай своё или добавь карточку из базы.</span>
+        </div>
+    }
+    <div class="my-exercise-grid">
+        @foreach(var e in Model.Exercises){var fromBase=e.SourceExerciseId.HasValue;<div class="catalog-row exercise-row">
+        <catalog-placeholder kind="Exercises" custom-src="@e.Image" alt="Обложка упражнения">
+        </catalog-placeholder>
+        <div>
+            <b>@e.Name</b>
+            <span>@(e.Equipment??"Без оборудования")</span>
+        </div>
+        <div class="personal-item-actions">
+            <span class="tag @(fromBase?"blue-tag":"")">@(fromBase?"из базы":"создано мной")</span>
+            <a class="ghost small" asp-action="ViewExercise" asp-route-id="@e.Id">Открыть</a>
+            <a class="ghost small" asp-action="EditExercise" asp-route-id="@e.Id">Изменить</a>
+            <form asp-action="DeleteExercise" method="post" data-confirm="Убрать упражнение из «Моих»? В базе FitMind оно останется.">
+                <input type="hidden" name="id" value="@e.Id"/>
+                <button class="ghost small">Удалить</button>
+            </form>
+        </div>
+    </div>
+}
+</div>
+</section>
+</div>
+<section class="panel personal-recent records-panel">
+    <div class="panel-head">
+        <h2>Последние записи</h2>
+        <a asp-action="AddRecord" class="primary">+ Добавить запись</a>
+    </div>
+    @if(!Model.History.Any()){
+        <div class="personal-empty personal-empty--center">
+            <span class="personal-empty__icon">▤</span>
+            <div>
+                <h3>Пока нет записей</h3>
+                <p>После тренировки зафиксируй фактический результат.</p>
+            </div>
+        </div>
+    }
+    @foreach(var h in Model.History.Take(5)){var min=Math.Max(0,(int)((h.End??h.Start)-h.Start).TotalMinutes);<div class="record-row">
+    <span class="round-icon">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#dumbbell">
+            </use>
+        </svg>
+    </span>
+    <div>
+        <b>@h.Title</b>
+        <small>@h.Start.ToString("d MMM yyyy",ru) · @h.Sets.Count(s=>s.Done) подх.</small>
+    </div>
+    <span>@min мин</span>
+    <form asp-action="DeleteWorkout" method="post" data-confirm="Удалить запись тренировки?">
+        <input type="hidden" name="id" value="@h.Id"/>
+        <input type="hidden" name="fromIndex" value="true"/>
+        <button class="ghost small danger-action">Удалить</button>
+    </form>
+</div>
+}
+</section>
+<div class="personal-bottom workout-bottom">
+    <section class="panel personal-calendar calendar-panel" id="calendar">
+        <div class="panel-head">
+            <div>
+                <h2>Календарь тренировок</h2>
+                <p>@Model.Month.ToString("MMMM yyyy",ru)</p>
+            </div>
+            <div class="calendar-nav">
+                <a asp-route-month="@Model.Month.AddMonths(-1).ToString("yyyy-MM-dd")">←</a>
+                <a asp-route-month="@Model.Month.AddMonths(1).ToString("yyyy-MM-dd")">→</a>
+            </div>
+        </div>
+        <div class="calendar-week">
+            @foreach(var x in new[]{"Пн","Вт","Ср","Чт","Пт","Сб","Вс"}){<span>@x</span>
+        }
+    </div>
+    <div class="calendar-grid">
+        @for(int i=0;i<42;i++){var d=gridStart.AddDays(i);var ev=Model.CalendarWorkouts.Where(x=>x.Start.Date==d.Date&&x.Status!=DayEntryStatus.Skipped).ToList();<div class="calendar-day @(d.Month!=Model.Month.Month?"muted-day":"") @(d.Date==DateTime.Today?"today":"")">
+        <b>@d.Day</b>
+        @foreach(var e in ev.Take(2)){
+            <a asp-action="Run" asp-route-id="@e.Id" class="calendar-event" title="@e.Start.ToString("HH:mm") @e.Title">@(e.Status==DayEntryStatus.Done?"✓ ":"")@e.Title</a>
+        }
+    </div>
+}
+</div>
+</section>
+<section class="panel personal-notes">
+    <h2>Заметки</h2>
+    @foreach(var n in Model.Notes){
+        <details class="note-row">
+            <summary>
+                <b>@(n.Title??"Заметка")</b>
+                <small>@n.CreatedAt.ToString("d MMM yyyy",ru)</small>
+                <span class="muted">@(n.Text.Length>80?n.Text[..80]+"…":n.Text)</span>
+            </summary>
+            <form asp-action="SaveNote" method="post">
+                <input type="hidden" name="id" value="@n.Id"/>
+                <input name="title" value="@n.Title" maxlength="200" placeholder="Заголовок"/><textarea name="text" rows="3" maxlength="4000" required>@n.Text</textarea><div class="form-actions">
+                <button class="primary small">Сохранить</button>
+            </div>
+        </form>
+        <form asp-action="DeleteNote" method="post" data-confirm="Удалить заметку?">
+            <input type="hidden" name="id" value="@n.Id"/>
+            <button class="ghost small">Удалить</button>
+        </form>
+    </details>
+}
+<form asp-action="SaveNote" method="post" class="note-new">
+    <input name="title" maxlength="200" placeholder="Заголовок заметки (необязательно)"/><textarea name="text" rows="5" maxlength="4000" required placeholder="Новая заметка о тренировках"></textarea><button class="ghost">+ Заметка</button>
+</form>
+</section>
+</div>
+</div>

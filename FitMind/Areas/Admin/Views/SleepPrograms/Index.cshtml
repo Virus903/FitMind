@@ -1,0 +1,25 @@
+@model IEnumerable<FitMind.Models.FitnessProgram>
+@{
+    ViewData["Title"]="Программы сна";
+}
+<div class="admin-page-head">
+    <div>
+        <h1>Программы сна</h1>
+        <p>Готовые программы базы FitMind.</p>
+    </div>
+    <a class="primary" asp-action="Edit">＋ Создать программу</a>
+</div>
+<div class="admin-program-list">
+    @foreach(var p in Model){
+        <article>
+            <catalog-placeholder kind="SleepPrograms" custom-src="@p.Image" alt="Обложка @p.Name">
+            </catalog-placeholder>
+            <div>
+                <span class="admin-status @(p.Active?"is-active":"")">• @(p.Active?"Опубликована":"Скрыта")</span>
+                <h2>@p.Name</h2>
+                <p>@p.Weeks нед.</p>
+                <a class="ghost" asp-action="Edit" asp-route-id="@p.Id">✎ Редактировать</a>
+            </div>
+        </article>
+    }
+</div>

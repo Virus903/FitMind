@@ -1,0 +1,17 @@
+.program-day { margin-block:1rem; min-width:0; }
+.program-day .exercise-editor { padding-block:1rem; border-bottom:1px solid var(--border); grid-template-columns:repeat(3, minmax(0, 1fr)); }
+.program-day .exercise-editor label:first-child { grid-column:1 / -1; }
+.program-day input, .program-day select { min-width:0; max-width:100%; }
+.editor-actions { display:flex; flex-wrap:wrap; gap:.5rem; grid-column:1 / -1; margin-block:.75rem; }
+[data-program-editor] > *, .program-day label { min-width:0; }
+@media (max-width: 600px) {
+    .program-day .exercise-editor { grid-template-columns:minmax(0, 1fr); }
+    .program-day { padding:.75rem; }
+    .editor-actions button { min-height:44px; }
+}
+
+/* Визуальная структура редактора программы: сведения, дни, упражнения и сохранение. */
+.program-builder-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}.program-builder-grid .form-shell{padding:28px}.program-builder-grid .form-shell>h2{margin:0 0 20px;font-size:24px}.program-builder-grid .form-shell>small{display:block;margin:-8px 0 18px;color:var(--text-muted)}.program-builder-grid label{font-size:13px;font-weight:650}.program-builder-grid label input,.program-builder-grid label select,.program-builder-grid label textarea{margin-top:6px}.program-builder-grid [data-days]{display:grid;gap:16px;margin-top:24px}.program-day{margin:0;padding:20px;border:1px solid var(--border);border-radius:12px;background:var(--bg-sidebar)}.program-day>h2{margin:0 0 16px;font-size:19px}.program-day>h3{margin:22px 0 10px;font-size:15px}.program-day .exercise-editor{display:grid;gap:12px;padding:16px;margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card)}.editor-actions{margin:4px 0 0}.editor-actions .ghost{min-height:34px}.builder-side{position:sticky;top:22px;padding:22px}.builder-side h2{margin:0 0 8px;font-size:21px}.builder-side p{font-size:13px;line-height:1.55}.builder-side .full{width:100%;margin-top:12px}.program-builder-grid>[data-add-day]{justify-self:start}
+@media(max-width:1000px){.program-builder-grid{grid-template-columns:1fr}.builder-side{position:static;display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}.builder-side h2{grid-column:1}.builder-side p{grid-column:1;margin:0}.builder-side .full{grid-column:2;grid-row:1/3;margin:0;width:auto}}
+@media(max-width:600px){.program-builder-grid .form-shell,.program-day{padding:16px}.program-day .exercise-editor{padding:12px}.editor-actions button{min-height:40px}.builder-side{display:block}.builder-side .full{width:100%;margin-top:14px}}
+.program-cover-preview{display:block;width:180px;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--border);background:var(--bg-card-hover);margin:4px 0 12px}

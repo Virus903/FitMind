@@ -1,0 +1,41 @@
+@model Exercise
+@{
+    ViewData["Title"]=Model.Name;
+}
+<a asp-action="Index" class="back">← Мои тренировки</a>
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="Exercises" custom-src="@Model.Image" alt="@Model.Name">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">Создано мной</span>
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+        <div class="info-grid">
+            <div>
+                <small>Группа мышц</small>
+                <b>@(Model.Place??"—")</b>
+            </div>
+            <div>
+                <small>Оборудование</small>
+                <b>@(Model.Equipment??"—")</b>
+            </div>
+            <div>
+                <small>Сложность</small>
+                <b>@(string.IsNullOrEmpty(Model.Difficulty)?"—":Model.Difficulty)</b>
+            </div>
+        </div>
+        <div class="actions">
+            <a class="primary" asp-action="EditExercise" asp-route-id="@Model.Id">Изменить</a>
+            <form asp-action="DeleteExercise" method="post" data-confirm="Убрать упражнение из «Моих»?">
+                <input type="hidden" name="id" value="@Model.Id"/>
+                <button class="ghost">Удалить</button>
+            </form>
+        </div>
+    </div>
+</div>
+@if(!string.IsNullOrWhiteSpace(Model.Technique)){
+    <section class="panel">
+        <h2>Техника</h2>
+        <p style="white-space:pre-line">@Model.Technique</p>
+    </section>
+}

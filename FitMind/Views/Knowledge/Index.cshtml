@@ -1,0 +1,58 @@
+@model IEnumerable<Article>
+@{
+    ViewData["Title"]="База знаний";
+    var cats=(IEnumerable<Category>)ViewBag.Categories;
+}
+<div class="page-head">
+    <div>
+        <h1>База знаний</h1>
+        <p>Информационные статьи FitMind. Пользователь читает и фильтрует материалы, но не редактирует общую базу.</p>
+    </div>
+</div>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form class="filterbar library-filter" method="get">
+    <input name="q" value="@ViewBag.Q" placeholder="Поиск по статьям..."/>
+    <select name="categoryId">
+        <option value="">Все категории</option>
+        @foreach(var c in cats){
+            <option value="@c.Id">@c.Name</option>
+        }
+    </select>
+    <select name="sort">
+        <option value="">Сначала новые</option>
+        <option value="short">Короткое чтение</option>
+    </select>
+    <button class="primary">Найти</button>
+</form>
+@if(!Model.Any()){
+    <div class="empty-state">
+        <div class="empty-icon">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#book">
+                </use>
+            </svg>
+        </div>
+        <h2>Материалы не найдены</h2>
+        <p>Попробуй изменить поиск или фильтр.</p>
+    </div>
+}
+else{<div class="article-grid">
+@foreach(var x in Model){
+    <a asp-action="Article" asp-route-id="@x.Id" class="article-card">
+        <catalog-placeholder kind="Knowledge" alt="Иллюстрация раздела «База знаний»">
+        </catalog-placeholder>
+        <div class="article-card-body">
+            <span class="pill">@x.Category?.Name</span>
+            <h3>@x.Title</h3>
+            <p>@x.ShortDescription</p>
+            <div class="library-meta">
+                <span>@(x.ReadingMinutes??5) мин. чтения</span>
+                <span>@x.PublishedAt.ToString("dd.MM.yyyy")</span>
+            </div>
+        </div>
+    </a>
+}
+</div>
+}
+<partial name="_Pagination" model="(FitMind.ViewModels.PaginationVm)ViewBag.Pagination" />

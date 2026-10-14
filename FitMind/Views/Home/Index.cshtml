@@ -1,0 +1,268 @@
+@{
+    ViewData["Title"]="FitMind";
+    Layout=null;
+}
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <title>FitMind</title>
+        <link rel="stylesheet" href="/css/site.css" asp-append-version="true"/>
+        <link rel="stylesheet" href="/css/public-pages.css" asp-append-version="true" />
+    </head>
+    <body class="landing-page">
+        <header class="landing-header">
+            <div class="landing-header__inner">
+                <a class="landing-logo" href="#top" aria-label="FitMind">
+                    <svg class="fm-icon logo-icon" aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#logo">
+                        </use>
+                    </svg>
+                    <b>Fit<span>Mind</span>
+                </b>
+            </a>
+            <nav class="landing-menu" aria-label="Навигация по главной странице">
+                <a href="#features" data-landing-nav="features">Возможности</a>
+                <a href="#about-project" data-landing-nav="about-project">О проекте</a>
+                <a href="#about-us" data-landing-nav="about-us">О нас</a>
+            </nav>
+            <div class="landing-auth">
+                <a asp-controller="Account" asp-action="Login" class="landing-login">Войти</a>
+                <a asp-controller="Account" asp-action="Register" class="landing-register">Регистрация</a>
+            </div>
+        </div>
+    </header>
+    <main id="top" class="landing-content">
+        <section class="landing-hero" aria-labelledby="hero-title">
+            <div class="landing-hero__copy">
+                <div class="landing-kicker">ТВОЙ ПЕРСОНАЛЬНЫЙ FITNESS-HUB</div>
+                <h1 id="hero-title">Тренируйся умно.<br/>
+                <span>Живи лучше.</span>
+            </h1>
+            <p>FitMind помогает выстраивать здоровые привычки,<br class="desktop-only"/> следить за прогрессом и достигать твоих целей<br class="desktop-only"/> в одном месте.</p>
+        </div>
+        <div class="landing-preview" aria-label="Пример интерфейса FitMind">
+            <div class="preview-title">
+                <svg class="fm-icon preview-logo" aria-hidden="true">
+                    <use href="/icons/fitmind-icons.svg#logo">
+                    </use>
+                </svg>
+                <b>FitMind</b>
+                <span class="preview-dots">● ● ●</span>
+            </div>
+            <div class="preview-shell">
+                <aside class="preview-nav">
+                    <div class="preview-nav-item active">
+                        <svg class="fm-icon " aria-hidden="true">
+                            <use href="/icons/fitmind-icons.svg#home">
+                            </use>
+                        </svg>
+                        <span>Главная</span>
+                    </div>
+                    <div class="preview-nav-item">
+                        <svg class="fm-icon " aria-hidden="true">
+                            <use href="/icons/fitmind-icons.svg#dumbbell">
+                            </use>
+                        </svg>
+                        <span>Тренировки</span>
+                    </div>
+                    <div class="preview-nav-item">
+                        <svg class="fm-icon " aria-hidden="true">
+                            <use href="/icons/fitmind-icons.svg#nutrition">
+                            </use>
+                        </svg>
+                        <span>Питание</span>
+                    </div>
+                    <div class="preview-nav-item">
+                        <svg class="fm-icon " aria-hidden="true">
+                            <use href="/icons/fitmind-icons.svg#moon">
+                            </use>
+                        </svg>
+                        <span>Сон</span>
+                    </div>
+                    <div class="preview-nav-item">
+                        <svg class="fm-icon " aria-hidden="true">
+                            <use href="/icons/fitmind-icons.svg#target">
+                            </use>
+                        </svg>
+                        <span>Замеры</span>
+                    </div>
+                    <div class="preview-nav-item">
+                        <svg class="fm-icon " aria-hidden="true">
+                            <use href="/icons/fitmind-icons.svg#calendar">
+                            </use>
+                        </svg>
+                        <span>Режим дня</span>
+                    </div>
+                    <div class="preview-nav-item">
+                        <svg class="fm-icon " aria-hidden="true">
+                            <use href="/icons/fitmind-icons.svg#user">
+                            </use>
+                        </svg>
+                        <span>Профиль</span>
+                    </div>
+                </aside>
+                <div class="preview-dashboard">
+                    <h3>Сегодня</h3>
+                    <div class="preview-cards preview-cards--today">
+                        <div class="preview-card preview-stat">
+                            <span class="preview-card-icon">
+                                <svg class="fm-icon" aria-hidden="true">
+                                    <use href="/icons/fitmind-icons.svg#dumbbell">
+                                    </use>
+                                </svg>
+                            </span>
+                            <strong>18:00</strong>
+                            <small>Тренировка</small>
+                        </div>
+                        <div class="preview-card preview-stat">
+                            <span class="preview-card-icon">
+                                <svg class="fm-icon" aria-hidden="true">
+                                    <use href="/icons/fitmind-icons.svg#nutrition">
+                                    </use>
+                                </svg>
+                            </span>
+                            <strong>1 850</strong>
+                            <small>ккал</small>
+                        </div>
+                        <div class="preview-card preview-stat">
+                            <span class="preview-card-icon">
+                                <svg class="fm-icon" aria-hidden="true">
+                                    <use href="/icons/fitmind-icons.svg#water">
+                                    </use>
+                                </svg>
+                            </span>
+                            <strong>1,2 л</strong>
+                            <small>воды</small>
+                        </div>
+                        <div class="preview-card preview-stat">
+                            <span class="preview-card-icon">
+                                <svg class="fm-icon" aria-hidden="true">
+                                    <use href="/icons/fitmind-icons.svg#moon">
+                                    </use>
+                                </svg>
+                            </span>
+                            <strong>7 ч 30 мин</strong>
+                            <small>Сон</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="features" class="landing-section landing-features" data-landing-section="features">
+        <div class="landing-section__heading">
+            <span>ВОЗМОЖНОСТИ</span>
+            <h2>Все, что нужно для твоего прогресса</h2>
+            <p>FitMind объединяет основные аспекты здорового образа жизни<br class="desktop-only"/> в одном удобном сервисе.</p>
+        </div>
+        <div class="landing-feature-grid landing-feature-grid--five">
+            <article class="landing-feature-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#dumbbell">
+                        </use>
+                    </svg>
+                </span>
+                <h3>Тренировки</h3>
+                <p>Программы тренировок, свои упражнения и журнал выполненных подходов.</p>
+            </article>
+            <article class="landing-feature-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#nutrition">
+                        </use>
+                    </svg>
+                </span>
+                <h3>Питание</h3>
+                <p>Рацион, калории и вода за день в одном дневнике.</p>
+            </article>
+            <article class="landing-feature-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#moon">
+                        </use>
+                    </svg>
+                </span>
+                <h3>Сон и восстановление</h3>
+                <p>Режим сна и процедуры восстановления по плану.</p>
+            </article>
+            <article class="landing-feature-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#supplement">
+                        </use>
+                    </svg>
+                </span>
+                <h3>Добавки</h3>
+                <p>Схема приёма добавок с напоминаниями в «Моём дне».</p>
+            </article>
+            <article class="landing-feature-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#book">
+                        </use>
+                    </svg>
+                </span>
+                <h3>База знаний</h3>
+                <p>Материалы о тренировках, питании, сне и восстановлении.</p>
+            </article>
+        </div>
+    </section>
+    <section id="about-project" class="landing-section landing-about" data-landing-section="about-project">
+        <div class="landing-section__heading">
+            <span>О ПРОЕКТЕ</span>
+            <h2>FitMind — больше, чем просто трекер</h2>
+            <p>Мы создали FitMind, чтобы помочь каждому человеку сделать<br class="desktop-only"/> спорт, здоровье и заботу о себе простыми и удобными.</p>
+        </div>
+        <div class="landing-about-grid">
+            <article class="landing-info-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#target">
+                        </use>
+                    </svg>
+                </span>
+                <div>
+                    <h3>Наша цель</h3>
+                    <p>Помочь каждому пользователю выстраивать здоровые привычки и достигать своих целей с помощью современных технологий.</p>
+                </div>
+            </article>
+            <article class="landing-info-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#group">
+                        </use>
+                    </svg>
+                </span>
+                <div>
+                    <h3>Наш подход</h3>
+                    <p>Мы стремимся сделать полезные инструменты доступными и удобными, объединив их в единую платформу.</p>
+                </div>
+            </article>
+            <article class="landing-info-card">
+                <span class="landing-card-icon">
+                    <svg class="fm-icon " aria-hidden="true">
+                        <use href="/icons/fitmind-icons.svg#code">
+                        </use>
+                    </svg>
+                </span>
+                <div>
+                    <h3>Технологии</h3>
+                    <p>Современный стек, надёжная архитектура и единая система личных дневников и информационных баз.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+    <section id="about-us" class="landing-section landing-team" data-landing-section="about-us">
+        <div class="landing-section__heading">
+            <span>О НАС</span>
+            <h2>Команда, которая создаёт FitMind</h2>
+            <p>Мы верим, что здоровый образ жизни должен быть доступным,<br class="desktop-only"/> понятным и удобным для каждого. Наша команда работает над тем,<br class="desktop-only"/> чтобы FitMind постоянно развивался и становился ещё лучше.</p>
+        </div>
+    </section>
+</main>
+<script src="/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

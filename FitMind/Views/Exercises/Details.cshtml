@@ -1,0 +1,61 @@
+@model Exercise
+@{
+    ViewData["Title"]=Model.Name;
+    var muscles=(IEnumerable<ExerciseMuscle>)ViewBag.Muscles;
+}
+<a asp-action="Index" class="back">← Назад к упражнениям</a>
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="Exercises" alt="Иллюстрация раздела «Упражнения»">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">@Model.Category?.Name</span>
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+        <div class="info-grid">
+            <div>
+                <small>Сложность</small>
+                <b>@Model.Difficulty</b>
+            </div>
+            <div>
+                <small>Оборудование</small>
+                <b>@(Model.Equipment??"—")</b>
+            </div>
+            <div>
+                <small>Место</small>
+                <b>@(Model.Place??"—")</b>
+            </div>
+        </div>
+        <div class="tag-row">
+            @foreach(var m in muscles){
+                <span class="pill @(m.IsPrimary?"":"subtle")">@m.MuscleGroup?.Name</span>
+            }
+        </div>
+        <div class="detail-actions">
+            <div asp-validation-summary="All" class="validation">
+            </div>
+            <form asp-action="AddToMy" method="post">
+                <input type="hidden" name="id" value="@Model.Id"/>
+                <button class="primary" type="submit">Добавить в мои упражнения</button>
+            </form>
+            <a asp-action="AddToWorkout" asp-route-id="@Model.Id" class="ghost">Добавить сразу в тренировку</a>
+        </div>
+    </div>
+</div>
+<div class="detail-sections">
+    <section class="detail-card">
+        <h2>Техника выполнения</h2>
+        <p class="preline">@Model.Technique</p>
+    </section>
+    <section class="detail-card">
+        <h2>Частые ошибки</h2>
+        <p class="preline">@(Model.CommonMistakes??"Нет дополнительных данных.")</p>
+    </section>
+    <section class="detail-card">
+        <h2>Рекомендации</h2>
+        <p class="preline">@(Model.Recommendations??"Следи за техникой и контролируй нагрузку.")</p>
+    </section>
+    <section class="detail-card">
+        <h2>Противопоказания</h2>
+        <p class="preline">@(Model.Contraindications??"Учитывай индивидуальные ограничения и самочувствие.")</p>
+    </section>
+</div>

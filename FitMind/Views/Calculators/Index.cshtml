@@ -1,0 +1,139 @@
+@model FitMind.Services.CalculatorPage
+@using FitMind.Services
+@using System.Globalization
+@{
+    ViewData["Title"] = "Калькуляторы";
+    var definition = Model.Definition;
+}
+
+<section class="calculators-hero">
+    <div>
+        <span class="eyebrow">Инструменты</span>
+        <h1>Калькуляторы</h1>
+        <p>Практические расчёты для питания, тренировок, кардио и восстановления. Результат можно сохранить в личной истории.</p>
+    </div>
+    <span class="calculator-count">@CalculatorEngine.All.Count() расчётов</span>
+</section>
+<div class="calculator-finder panel">
+    <label class="calculator-search">
+        <svg class="fm-icon" aria-hidden="true">
+            <use href="/icons/fitmind-icons.svg#search">
+            </use>
+        </svg>
+        <input type="search" placeholder="Найти калькулятор" aria-label="Найти калькулятор" data-calculator-search />
+    </label>
+    <nav class="calculator-category-tabs" aria-label="Категории калькуляторов">
+        <button type="button" class="active" data-calculator-category="">Все</button>
+        @foreach (var category in CalculatorEngine.All.Select(x => x.Category).Distinct()) { <button type="button" data-calculator-category="@category">@category</button> }
+    </nav>
+</div>
+<div class="calculator-workspace">
+    <aside class="panel calculator-nav calculator-tabs" aria-label="Выбор калькулятора">
+        @foreach (var group in CalculatorEngine.All.GroupBy(x => x.Category))
+        {
+        <div class="calculator-nav__group" data-calculator-group="@group.Key">
+            <h2>@group.Key</h2>
+            @foreach (var calculator in group) { <a class="@(calculator.Key == Model.Calculator ? "active" : "")" asp-route-calc="@calculator.Key" data-calculator-name="@calculator.Title">@calculator.Title</a> }
+        </div>
+    }
+</aside>
+<section class="calculator-main">
+    <form asp-action="Calculate" method="post" class="panel calculator-v2">
+        <input type="hidden" name="Calculator" value="@Model.Calculator" />
+        <div class="calculator-v2__head">
+            <span class="my-day-metric__icon purple">
+                <svg class="fm-icon" aria-hidden="true">
+                    <use href="/icons/fitmind-icons.svg#calculator">
+                    </use>
+                </svg>
+            </span>
+            <div>
+                <h2>@definition.Title</h2>
+                <p>@definition.Description</p>
+            </div>
+        </div>
+        <div asp-validation-summary="All" class="validation">
+        </div>
+        <div class="form-grid two">
+            @foreach (var field in definition.Fields) { <label>@field.Label<input type="number" name="Values[@field.Key]" value="@Model.Values.GetValueOrDefault(field.Key).ToString(CultureInfo.InvariantCulture)" step="any" min="@field.Min.ToString(CultureInfo.InvariantCulture)" max="@field.Max.ToString(CultureInfo.InvariantCulture)" required />
+        </label> }
+    </div>
+    <div class="calculator-v2__actions">
+        <button class="primary calc-submit">Рассчитать</button>
+        @if (Model.Results.Any()) { <button class="ghost" type="submit" formaction="@Url.Action("Save")">Сохранить результат</button> }
+    </div>
+    @if (Model.Results.Any()) { <section class="calc-answer" aria-live="polite">
+    <span class="eyebrow">Результат</span>
+    <div>
+        @foreach (var result in Model.Results) { <p>
+        <span>@result.Key</span>
+        <strong>@result.Value</strong>
+    </p> }
+</div>
+<h3>Что это значит</h3>
+<p>@definition.Description Расчёт является ориентиром и оценивается вместе с вашим самочувствием и динамикой.</p>
+</section> }
+<details class="formula-details">
+    <summary>Как считается</summary>
+    <p>@definition.Formula</p>
+</details>
+<p class="calculator-disclaimer">Расчёт ориентировочный и не заменяет медицинскую диагностику.</p>
+</form>
+<section class="panel calculator-history">
+    <div class="panel-head">
+        <div>
+            <span class="eyebrow">Личные записи</span>
+            <h2>История расчётов</h2>
+        </div>
+    </div>
+    @if (!Model.History.Any()) { <div class="empty-line">
+    <b>История пуста</b>
+    <span>После расчёта нажмите «Сохранить результат».</span>
+</div> } else { @foreach (var item in Model.History) { <article class="note-row">
+<div>
+    <b>@item.Title</b>
+    <small>@item.CreatedAt.ToString("d MMMM yyyy · HH:mm", new CultureInfo("ru-RU"))</small>
+</div>
+<span>@item.Text</span>
+<div>
+    <a asp-controller="PersonalItems" asp-action="Edit" asp-route-kind="note" asp-route-id="@item.Id" class="text-link">Изменить заметку</a>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" name="id" value="@item.Id"/>
+        <input type="hidden" name="calc" value="@Model.Calculator"/>
+        <button class="danger-link">Удалить</button>
+    </form>
+</div>
+</article> } }
+</section>
+</section>
+</div>
+
+@section Scripts {
+    <script>
+(() => {
+    const search = document.querySelector('[data-calculator-search]');
+    const groups = [...document.querySelectorAll('[data-calculator-group]')];
+    const tabs = [...document.querySelectorAll('[data-calculator-category]')];
+    let category = '';
+    const filter = () => {
+        const query = (search?.value || '').trim().toLocaleLowerCase('ru');
+        groups.forEach(group => {
+            const categoryMatch = !category || group.dataset.calculatorGroup === category;
+            let visible = 0;
+            group.querySelectorAll('[data-calculator-name]').forEach(link => {
+                const matches = categoryMatch && (!query || link.dataset.calculatorName.toLocaleLowerCase('ru').includes(query));
+                link.hidden = !matches;
+                if (matches) visible++;
+            });
+            group.hidden = visible === 0;
+        });
+    };
+    search?.addEventListener('input', filter);
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+        category = tab.dataset.calculatorCategory;
+        tabs.forEach(item => item.classList.toggle('active', item === tab));
+        filter();
+    }));
+})();
+</script>
+}

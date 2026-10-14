@@ -1,0 +1,59 @@
+@model WorkoutRecordVm
+@{
+    ViewData["Title"]="Добавить запись";
+}
+<a asp-action="Index" class="back">← Назад к тренировкам</a>
+<div class="page-head">
+    <div>
+        <h1>Добавить запись</h1>
+        <p>Зафиксируй фактический результат тренировки вручную.</p>
+    </div>
+</div>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form asp-action="AddRecord" method="post" class="program-builder-grid">
+    <input asp-for="WorkoutId" type="hidden"/>
+    <section class="panel form-shell">
+        <div class="form-grid two">
+            <label>Название тренировки<input asp-for="Name"/>
+        </label>
+        <label>Дата<input asp-for="Date" type="date"/>
+    </label>
+</div>
+<div class="form-grid three">
+    <label>Время<input asp-for="Time" type="time"/>
+</label>
+<label>Длительность, мин<input asp-for="DurationMinutes" type="number"/>
+</label>
+<label>Самочувствие 1–5<input asp-for="Wellbeing" type="number" min="1" max="5"/>
+</label>
+</div>
+<label>Заметки после тренировки<textarea asp-for="Note" rows="7" placeholder="Как прошла тренировка, ощущения, что улучшить..."></textarea></label>
+<div class="form-actions">
+    <a asp-action="Index" class="ghost">Отмена</a>
+    <button class="primary">Сохранить запись</button>
+</div>
+</section>
+<aside class="panel builder-side">
+    <h2>Запись тренировки</h2>
+    <p>После сохранения запись появится в истории и будет использоваться панелью «Мой прогресс».</p>
+    <div class="mini-info-list">
+        <div>
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#history">
+                </use>
+            </svg>
+            <b>Факт</b>
+            <span>дата и длительность</span>
+        </div>
+        <div>
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#progress">
+                </use>
+            </svg>
+            <b>Прогресс</b>
+            <span>используются реальные данные</span>
+        </div>
+    </div>
+</aside>
+</form>

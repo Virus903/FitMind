@@ -1,0 +1,59 @@
+@model AdminListVm
+@{
+    ViewData["Title"] = Model.Title;
+    var placeholderKind=Model.Kind switch{"exercises"=>"Exercises","products" or "recipes"=>"Food","recovery"=>"Recovery","supplements"=>"Supplements",_=>"Knowledge"};
+}
+<section class="admin-page-head">
+    <div>
+        <h1>@Model.Title</h1>
+        <p>Управление опубликованным содержимым каталога FitMind.</p>
+    </div>
+    <a class="primary" asp-action="Create" asp-route-kind="@Model.Kind">＋ Добавить</a>
+</section>
+<form method="get" class="admin-filter">
+    <input type="hidden" name="kind" value="@Model.Kind" />
+    <input name="q" value="@Model.Query" placeholder="Поиск по названию и описанию" />
+    <select name="status" aria-label="Статус публикации">
+        <option value="all" selected="@(Model.Status=="all")">Все статусы</option>
+        <option value="active" selected="@(Model.Status=="active")">Опубликованные</option>
+        <option value="hidden" selected="@(Model.Status=="hidden")">Скрытые</option>
+    </select>
+    <select name="sort" aria-label="Сортировка">
+        <option value="name" selected="@(Model.Sort=="name")">Название А–Я</option>
+        <option value="name-desc" selected="@(Model.Sort=="name-desc")">Название Я–А</option>
+        <option value="status" selected="@(Model.Sort=="status")">Сначала опубликованные</option>
+    </select>
+    <button class="primary">Применить</button>
+</form>
+<p class="admin-caption" aria-live="polite">Найдено записей: @Model.TotalItems</p>
+<section class="admin-catalog-grid">
+    @foreach (var x in Model.Rows) { <article class="admin-catalog-card">
+    <catalog-placeholder kind="@placeholderKind" custom-src="@x.Image" alt="Обложка: @x.Name">
+    </catalog-placeholder>
+    <div class="admin-catalog-card__body">
+        <div class="admin-catalog-card__meta">
+            <span class="admin-status @(x.Active?"is-active":"")">• @(x.Active ? "Опубликовано" : "Скрыто")</span>
+            @if(!string.IsNullOrWhiteSpace(x.Category)){
+                <span class="pill">@x.Category</span>
+            }
+        </div>
+        <h2>@x.Name</h2>
+        <p>@x.Description</p>
+        <div class="admin-catalog-card__actions">
+            <a class="ghost" asp-action="Edit" asp-route-kind="@Model.Kind" asp-route-id="@x.Id">✎ Редактировать</a>
+        </div>
+    </div>
+</article> }
+@if (!Model.Rows.Any()) { <div class="empty-state">
+<h3>Ничего не найдено</h3>
+<p>Измените условия поиска или вернитесь к полному списку.</p>
+<a class="ghost" asp-action="Index" asp-route-kind="@Model.Kind">Сбросить фильтры</a>
+</div> }
+</section>
+@if (Model.TotalPages > 1) { var from = Math.Max(1, Model.Page - 2); var to = Math.Min(Model.TotalPages, Model.Page + 2); <nav class="admin-pages" aria-label="Страницы каталога">
+@if(from > 1) { <a asp-route-kind="@Model.Kind" asp-route-q="@Model.Query" asp-route-status="@Model.Status" asp-route-sort="@Model.Sort" asp-route-page="1">1</a>
+<span>…</span> }
+@for (var i=from;i<=to;i++) { <a class="@(i==Model.Page?"active":"")" asp-route-kind="@Model.Kind" asp-route-q="@Model.Query" asp-route-status="@Model.Status" asp-route-sort="@Model.Sort" asp-route-page="@i">@i</a> }
+@if(to < Model.TotalPages) { <span>…</span>
+<a asp-route-kind="@Model.Kind" asp-route-q="@Model.Query" asp-route-status="@Model.Status" asp-route-sort="@Model.Sort" asp-route-page="@Model.TotalPages">@Model.TotalPages</a> }
+</nav> }

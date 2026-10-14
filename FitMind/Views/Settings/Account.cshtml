@@ -1,0 +1,78 @@
+@using Microsoft.AspNetCore.Identity
+@using FitMind.Models.Identity
+@{
+    ViewData["Title"]="Аккаунт и безопасность";
+    var user=(ApplicationUser)ViewBag.User;
+    var externalLogins=ViewBag.ExternalLogins as IList<UserLoginInfo>??Array.Empty<UserLoginInfo>();
+    var hasPassword=ViewBag.HasPassword is true;
+}
+<div class="page-head">
+    <div>
+        <h1>Аккаунт и безопасность</h1>
+        <p>Данные входа, внешние аккаунты и пароль.</p>
+    </div>
+    <a asp-action="Index" class="ghost">← Настройки</a>
+</div>
+@if(TempData["Ok"]!=null){
+    <div class="toast">@TempData["Ok"]</div>
+}
+@if(TempData["Error"]!=null){
+    <div class="validation">@TempData["Error"]</div>
+}
+<div class="account-security-grid">
+    <section class="panel account-details">
+        <h2>Основные данные</h2>
+        <div class="data-line">
+            <span>Email</span>
+            <b>@user.Email</b>
+        </div>
+        <div class="data-line">
+            <span>Логин</span>
+            <b>@user.UserName</b>
+        </div>
+        <div class="data-line">
+            <span>Телефон</span>
+            <b>@(user.PhoneNumber??"Не указан")</b>
+        </div>
+        <h2>Внешние входы</h2>
+        @if(externalLogins.Count==0){
+            <p class="muted">Внешние аккаунты пока не привязаны.</p>
+        }else{@foreach(var login in externalLogins){
+        <div class="data-line">
+            <span>@login.LoginProvider</span>
+            <b>Подключён</b>
+        </div>
+    }}
+</section>
+<form asp-action="ChangePassword" method="post" class="panel account-password">
+    <h2>@(hasPassword?"Смена пароля":"Создание пароля")</h2>
+    @if(hasPassword){
+        <label>Текущий пароль<input type="password" name="currentPassword" autocomplete="current-password" required/>
+    </label>
+}
+<label>Новый пароль<input type="password" name="newPassword" autocomplete="new-password" required minlength="8"/>
+</label>
+<label>Повторите новый пароль<input type="password" name="confirmPassword" autocomplete="new-password" required minlength="8"/>
+</label>
+<button class="primary">@(hasPassword?"Изменить пароль":"Создать пароль")</button>
+</form>
+</div>
+<section class="panel account-sessions">
+    <h2>Сеансы</h2>
+    <form asp-action="LogoutEverywhere" method="post">
+        <button class="ghost">Выйти на всех устройствах</button>
+    </form>
+</section>
+<section class="panel account-danger">
+    <h2>Удаление аккаунта</h2>
+    <p class="muted">Действие необратимо. Сначала рекомендуется скачать данные в настройках.</p>
+    <form asp-action="DeleteAccount" method="post">
+        @if(hasPassword){
+            <label>Пароль<input type="password" name="password" required/>
+        </label>
+    }
+    <label>Для подтверждения введите УДАЛИТЬ<input name="confirmation" required/>
+</label>
+<button class="danger">Удалить аккаунт и все мои данные</button>
+</form>
+</section>

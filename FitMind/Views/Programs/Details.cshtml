@@ -1,0 +1,99 @@
+@model FitnessProgram
+@{
+    ViewData["Title"]=Model.Name;
+    var own=ViewBag.Own==true;
+    var days=Model.Items.OrderBy(x=>x.DayNumber).ThenBy(x=>x.Order).ToList();
+    var ru=new System.Globalization.CultureInfo("ru-RU");
+}
+@if(own){
+    <a asp-controller="MyWorkouts" asp-action="Index" class="back">← Мои тренировки</a>
+}else{<a asp-action="Index" class="back">← Назад к программам</a>
+}
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="TrainingPrograms" alt="Иллюстрация раздела «Программы тренировок»">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">@Model.GoalText</span>
+        @if(own){
+            <span class="pill subtle">@(Model.SourceProgramId.HasValue?"из базы":"создана мной") · @(Model.Active?"активна":"не активна")</span>
+        }
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+        <div class="info-grid">
+            <div>
+                <small>Уровень</small>
+                <b>@(Model.Level?.Name??"—")</b>
+            </div>
+            <div>
+                <small>Длительность</small>
+                <b>@(Model.Weeks??8) недель</b>
+            </div>
+            <div>
+                <small>Частота</small>
+                <b>@(Model.WorkoutsPerWeek?.ToString()??days.Count.ToString()) раз/нед.</b>
+            </div>
+            <div>
+                <small>Место</small>
+                <b>@(Model.Place??"—")</b>
+            </div>
+        </div>
+        @if(!string.IsNullOrWhiteSpace(Model.ForWhom)){
+            <p>
+                <b>Для кого:</b> @Model.ForWhom</p>
+            }
+            <div asp-validation-summary="All" class="validation">
+            </div>
+            @if(own){
+                <div class="actions">
+                    <a class="primary" asp-controller="MyWorkouts" asp-action="EditProgram" asp-route-id="@Model.Id">Изменить</a>
+                    <form asp-controller="MyWorkouts" asp-action="SetProgramActive" method="post">
+                        <input type="hidden" name="id" value="@Model.Id"/>
+                        <input type="hidden" name="active" value="@(!Model.Active)"/>
+                        <button class="ghost">@(Model.Active?"Выключить":"Сделать активной")</button>
+                    </form>
+                </div>
+            }
+            else{<form asp-action="AddToMy" method="post">
+            <input type="hidden" name="id" value="@Model.Id"/>
+            <button class="primary" type="submit">Добавить в мои тренировки</button>
+        </form>
+    }
+</div>
+</div>
+@if(days.Any()){
+    <section class="detail-card program-preview">
+        <div class="program-preview__head">
+            <div>
+                <h2>Состав программы</h2>
+                <p>@(own?"Дни недели и время задаются в «Изменить»; активная программа сама добавляет тренировки в календарь и «Мой день».":"После добавления настрой дни недели и время в разделе «Мои тренировки».")</p>
+            </div>
+            <span class="pill subtle">@days.Count тренировочных дней</span>
+        </div>
+        <div class="program-preview__days">
+            @foreach(var day in days){
+                <article class="program-preview__day">
+                    <div>
+                        <span class="pill">День @day.DayNumber@(day.DayOfWeek.HasValue?" · "+ru.DateTimeFormat.GetDayName(day.DayOfWeek.Value):"")@(day.Time.HasValue?" · "+day.Time.Value.ToString(@"hh\:mm"):"")</span>
+                        <h3>@day.Title</h3>
+                        @if(!string.IsNullOrWhiteSpace(day.Description)){
+                            <p>@day.Description</p>
+                        }
+                    </div>
+                    <ol>
+                        @foreach(var exercise in day.Exercises.OrderBy(x=>x.Order)){
+                            <li>
+                                <b>@exercise.Exercise?.Name</b>
+                                <span>@exercise.Sets подхода(ов) · @(exercise.RepsMin.HasValue?(exercise.RepsMax.HasValue&&exercise.RepsMax!=exercise.RepsMin?$"{exercise.RepsMin}–{exercise.RepsMax} повторений":$"{exercise.RepsMin} повторений"):exercise.Seconds.HasValue?$"{exercise.Seconds} сек":"по плану")@(exercise.WeightKg.HasValue?$" · {exercise.WeightKg:0.##} кг":"")@(exercise.RestSeconds.HasValue?$" · отдых {exercise.RestSeconds} сек":"")</span>
+                            </li>
+                        }
+                    </ol>
+                </article>
+            }
+        </div>
+    </section>
+}
+else{<div class="panel">
+<h2>Этапы программы</h2>
+<p>В программе пока нет тренировочных дней с упражнениями. @(own?"Нажми «Изменить» и выбери свой набор.":"После добавления в личный раздел нажми «Изменить» и выбери свой набор.")</p>
+</div>
+}

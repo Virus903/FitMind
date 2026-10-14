@@ -1,0 +1,154 @@
+@model TrainingPreferencesVm
+@{
+    Layout = null;
+    var formats = ((IEnumerable<TrainingFormat>)ViewBag.Formats).ToList();
+    var selectedFormats = Model.FormatIds ?? new List<int>();
+}
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1"/>
+        <title>Тренировки — FitMind</title>
+        <link rel="stylesheet" href="/css/site.css"/>
+    </head>
+    <body class="onboarding-v04-page">
+        <header class="onboarding-v04-header">
+            <a class="onboarding-v04-logo" href="/">
+                <svg class="fm-icon">
+                    <use href="/icons/fitmind-icons.svg#logo">
+                    </use>
+                </svg>
+                <b>Fit<span>Mind</span>
+            </b>
+        </a>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="onboarding-v04-exit">Выйти</button>
+        </form>
+    </header>
+    <main class="onboarding-v04-shell">
+        <form asp-action="TrainingPreferences" method="post" class="onboarding-v04-card">
+            <partial name="_OnboardingSteps" model="3" />
+            <div class="onboarding-v04-heading">
+                <h1>Как тебе удобно <span>тренироваться?</span>
+            </h1>
+            <p>Выбери подходящие условия и предпочтения, чтобы мы настроили FitMind под тебя.</p>
+        </div>
+        <div asp-validation-summary="All" class="validation">
+        </div>
+        <section class="onboarding-v04-section">
+            <h2 class="with-icon">
+                <svg class="fm-icon">
+                    <use href="/icons/fitmind-icons.svg#pin">
+                    </use>
+                </svg> Где ты планируешь тренироваться?</h2>
+                <p class="onboarding-v04-hint">Можно выбрать несколько.</p>
+                <div class="choice-grid three">
+                    <label class="choice-card">
+                        <input asp-for="AtHome" type="checkbox" />
+                        <span class="choice-radio square">
+                        </span>
+                        <svg class="fm-icon choice-icon">
+                            <use href="/icons/fitmind-icons.svg#home">
+                            </use>
+                        </svg>
+                        <span>
+                            <b>Дома</b>
+                            <small>Удобно и без оборудования</small>
+                        </span>
+                    </label>
+                    <label class="choice-card">
+                        <input asp-for="Outdoor" type="checkbox" />
+                        <span class="choice-radio square">
+                        </span>
+                        <svg class="fm-icon choice-icon">
+                            <use href="/icons/fitmind-icons.svg#walk">
+                            </use>
+                        </svg>
+                        <span>
+                            <b>На улице</b>
+                            <small>Тренировки на открытом воздухе</small>
+                        </span>
+                    </label>
+                    <label class="choice-card">
+                        <input asp-for="AtGym" type="checkbox" />
+                        <span class="choice-radio square">
+                        </span>
+                        <svg class="fm-icon choice-icon">
+                            <use href="/icons/fitmind-icons.svg#dumbbell">
+                            </use>
+                        </svg>
+                        <span>
+                            <b>В зале</b>
+                            <small>Полный доступ к тренажёрам</small>
+                        </span>
+                    </label>
+                </div>
+                <span asp-validation-for="AtHome" class="validation">
+                </span>
+            </section>
+            <section class="onboarding-v04-section">
+                <h2 class="with-icon">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#calendar">
+                        </use>
+                    </svg> Как часто ты хочешь тренироваться?</h2>
+                    <div class="choice-grid three">
+                        @foreach (var item in new[] { (Value: (byte)2, Title: "1–2 раза", Sub: "в неделю"), (Value: (byte)4, Title: "3–4 раза", Sub: "в неделю"), (Value: (byte)5, Title: "5+ раз", Sub: "в неделю") })
+                        {
+                        <label class="choice-card">
+                            <input asp-for="WorkoutsPerWeek" type="radio" value="@item.Value" />
+                            <span class="choice-radio">
+                            </span>
+                            <svg class="fm-icon choice-icon">
+                                <use href="/icons/fitmind-icons.svg#calendar">
+                                </use>
+                            </svg>
+                            <span>
+                                <b>@item.Title</b>
+                                <small>@item.Sub</small>
+                            </span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="WorkoutsPerWeek" class="validation">
+                </span>
+            </section>
+            <section class="onboarding-v04-section">
+                <h2 class="with-icon">
+                    <svg class="fm-icon">
+                        <use href="/icons/fitmind-icons.svg#star">
+                        </use>
+                    </svg> Какие форматы тебе нравятся?</h2>
+                    <div class="choice-grid five">
+                        @foreach (var format in formats)
+                        {
+                        var ico = format.Name switch { "Силовые" => "dumbbell", "Кардио" => "heart", "Растяжка" => "stretch", "Йога" => "yoga", "Функциональные" => "run", _ => "star" };
+                        <label class="choice-card format-card">
+                            @if (selectedFormats.Contains(format.Id)) { <input type="checkbox" name="FormatIds" value="@format.Id" checked /> } else { <input type="checkbox" name="FormatIds" value="@format.Id" /> }
+                            <span class="choice-radio square">
+                            </span>
+                            <svg class="fm-icon choice-icon">
+                                <use href="/icons/fitmind-icons.svg#@ico">
+                                </use>
+                            </svg>
+                            <span>
+                                <b>@format.Name</b>
+                                <small>@format.Description</small>
+                            </span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="FormatIds" class="validation">
+                </span>
+            </section>
+            <div class="onboarding-v04-actions">
+                <a asp-action="Goal" class="onboarding-v04-secondary">
+                    <span>←</span> Назад</a>
+                    <button type="submit" class="onboarding-v04-primary wide">Сохранить и перейти в FitMind <span>→</span>
+                </button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

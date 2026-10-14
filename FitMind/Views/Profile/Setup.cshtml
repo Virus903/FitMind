@@ -1,0 +1,134 @@
+@model ProfileSetupVm
+@{
+    Layout = null;
+    var acts = (IEnumerable<ActivityLevel>)ViewBag.Activities;
+    var visibleActs = acts.Where(x => x.Name.Contains("Низкая") || x.Name.Contains("Средняя") || x.Name.Contains("Высокая")).Take(3).ToList();
+}
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Профиль — FitMind</title>
+        <link rel="stylesheet" href="/css/site.css" />
+    </head>
+    <body class="onboarding-v04-page">
+        <header class="onboarding-v04-header">
+            <a class="onboarding-v04-logo" href="/">
+                <svg class="fm-icon">
+                    <use href="/icons/fitmind-icons.svg#logo">
+                    </use>
+                </svg>
+                <b>Fit<span>Mind</span>
+            </b>
+        </a>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="onboarding-v04-exit">Выйти</button>
+        </form>
+    </header>
+    <main class="onboarding-v04-shell">
+        <form asp-action="Setup" method="post" class="onboarding-v04-card">
+            <partial name="_OnboardingSteps" model="1" />
+            <div class="onboarding-v04-heading">
+                <h1>Расскажи о себе</h1>
+                <p>Эти данные помогут подобрать тренировки и рекомендации именно для тебя.</p>
+            </div>
+            <div asp-validation-summary="All" class="validation">
+            </div>
+            <div class="onboarding-v04-fields three">
+                <label class="onboarding-field">
+                    <span>Возраст</span>
+                    <div class="onboarding-input">
+                        <input asp-for="Age" placeholder="Например, 25" />
+                        <svg class="fm-icon">
+                            <use href="/icons/fitmind-icons.svg#calendar">
+                            </use>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="Age" class="validation">
+                    </span>
+                </label>
+                <label class="onboarding-field">
+                    <span>Рост (см)</span>
+                    <div class="onboarding-input">
+                        <input asp-for="HeightCm" placeholder="Например, 175" />
+                        <svg class="fm-icon">
+                            <use href="/icons/fitmind-icons.svg#height">
+                            </use>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="HeightCm" class="validation">
+                    </span>
+                </label>
+                <label class="onboarding-field">
+                    <span>Вес (кг)</span>
+                    <div class="onboarding-input">
+                        <input asp-for="WeightKg" step="0.1" placeholder="Например, 70" />
+                        <svg class="fm-icon">
+                            <use href="/icons/fitmind-icons.svg#weight">
+                            </use>
+                        </svg>
+                    </div>
+                    <span asp-validation-for="WeightKg" class="validation">
+                    </span>
+                </label>
+            </div>
+            <section class="onboarding-v04-section">
+                <h2>Пол</h2>
+                <div class="choice-grid three">
+                    @foreach (var item in new[] { ("Мужской", "male", "Мужской"), ("Женский", "female", "Женский"), ("Не указан", "blocked", "Не указывать") })
+                    {
+                    <label class="choice-card compact">
+                        <input asp-for="Gender" type="radio" value="@item.Item1" />
+                        <span class="choice-radio">
+                        </span>
+                        <svg class="fm-icon choice-icon">
+                            <use href="/icons/fitmind-icons.svg#@item.Item2">
+                            </use>
+                        </svg>
+                        <b>@item.Item3</b>
+                    </label>
+                }
+            </div>
+        </section>
+        <section class="onboarding-v04-section">
+            <h2>Уровень активности</h2>
+            <div class="choice-grid three">
+                @for (var i = 0; i < visibleActs.Count; i++)
+                {
+                var a = visibleActs[i];
+                var ico = i == 0 ? "couch" : i == 1 ? "walk" : "run";
+                var subtitle = i == 0 ? "В основном сижу, мало двигаюсь" : i == 1 ? "Умеренная активность в течение недели" : "Частые тренировки и активный образ жизни";
+                <label class="choice-card">
+                    <input asp-for="ActivityLevelId" type="radio" value="@a.Id" />
+                    <span class="choice-radio">
+                    </span>
+                    <svg class="fm-icon choice-icon">
+                        <use href="/icons/fitmind-icons.svg#@ico">
+                        </use>
+                    </svg>
+                    <span>
+                        <b>@(i == 0 ? "Низкий" : i == 1 ? "Средний" : "Высокий")</b>
+                        <small>@subtitle</small>
+                    </span>
+                </label>
+            }
+        </div>
+        <span asp-validation-for="ActivityLevelId" class="validation">
+        </span>
+    </section>
+    <section class="onboarding-v04-section about-section">
+        <h2>Расскажи немного о себе</h2>
+        <p>Это сохранится в твоём профиле и поможет лучше понимать твои цели.</p>
+        <textarea asp-for="AboutMe" rows="4" maxlength="1000" placeholder="Например: хочу привести себя в форму, начать регулярно тренироваться и улучшить режим сна."></textarea>
+        <span asp-validation-for="AboutMe" class="validation">
+        </span>
+    </section>
+    <div class="onboarding-v04-actions only-next">
+        <button type="submit" class="onboarding-v04-primary">Далее <span>→</span>
+    </button>
+</div>
+</form>
+</main>
+</body>
+</html>

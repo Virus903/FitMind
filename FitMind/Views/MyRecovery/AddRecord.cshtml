@@ -1,0 +1,42 @@
+@model RecoveryRecordEditVm
+@{
+    ViewData["Title"] = "Запись сна и восстановления";
+    var methods = (List<RecoveryMethod>)ViewBag.Methods;
+}
+<section class="page-head">
+    <div>
+        <span class="eyebrow">Сон и восстановление</span>
+        <h1>Новая запись</h1>
+    </div>
+    <a class="ghost" asp-action="Index">Отмена</a>
+</section>
+<form asp-action="AddRecord" method="post" class="panel form-grid">
+    <div asp-validation-summary="ModelOnly">
+    </div>
+    <label>Тип<select asp-for="Type">
+    <option value="3">Сон</option>
+    <option value="5">Процедура</option>
+</select>
+</label>
+<label>Дата<input asp-for="Date" type="date"/>
+</label>
+<label>Начало<input asp-for="StartTime" type="time"/>
+</label>
+<label>Окончание сна<input asp-for="EndTime" type="time"/>
+</label>
+<label>Метод восстановления<select asp-for="RecoveryMethodId">
+<option value="">Свой вариант</option>
+@foreach (var item in methods) { <option value="@item.Id">@item.Name</option> }
+</select>
+</label>
+<label>Название своей процедуры<input asp-for="CustomName"/>
+</label>
+<label>Длительность процедуры, мин<input asp-for="DurationMinutes" type="number" min="1" max="1440"/>
+</label>
+<label>Оценка 1–5<input asp-for="Rating" type="number" min="1" max="5"/>
+</label>
+<label class="full">Комментарий<textarea asp-for="Comment"></textarea></label>
+<div class="full">
+    <button class="primary">Сохранить</button>
+</div>
+</form>

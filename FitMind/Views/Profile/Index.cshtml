@@ -1,0 +1,117 @@
+@model ProfilePageVm
+@{
+    ViewData["Title"] = "Профиль";
+    var p = Model.Profile;
+    var initials = string.IsNullOrWhiteSpace(p.Name) ? "U" : p.Name.Trim()[0].ToString().ToUpperInvariant();
+    var hasGaps = !p.Age.HasValue || !p.HeightCm.HasValue || !p.WeightKg.HasValue || !p.TrainingLevelId.HasValue || !p.HasPlace;
+}
+<div class="page-head profile-page-head">
+    <div>
+        <h1>Профиль</h1>
+        <p>Твои данные, цель и тренировочные предпочтения.</p>
+    </div>
+    <a asp-action="Edit" class="primary">Редактировать профиль</a>
+</div>
+<div class="profile-v04-hero">
+    <img class="profile-v04-avatar" src="/Profile/Avatar" alt="Аватар"/>
+    <div class="profile-v04-main">
+        <h2>@p.Name</h2>
+        <p>@User.Identity?.Name</p>
+        @if (!string.IsNullOrWhiteSpace(Model.GoalName)) { <span class="pill">@Model.GoalName</span> } <span class="pill">@(p.TrainingLevel?.Name ?? "Уровень не указан")</span>
+        @if (hasGaps) { <p class="profile-completion-hint">
+        <svg class="fm-icon" aria-hidden="true">
+            <use href="/icons/fitmind-icons.svg#target">
+            </use>
+        </svg> Заполни профиль, чтобы персонализировать рекомендации.</p> }
+    </div>
+    <div class="profile-v04-summary">
+        <div>
+            <span>Возраст</span>
+            <b>@(p.Age?.ToString() ?? "—")</b>
+        </div>
+        <div>
+            <span>Рост</span>
+            <b>@(p.HeightCm.HasValue ? $"{p.HeightCm} см" : "—")</b>
+        </div>
+        <div>
+            <span>Вес</span>
+            <b>@(p.WeightKg.HasValue ? $"{p.WeightKg:0.#} кг" : "—")</b>
+        </div>
+    </div>
+</div>
+<div class="profile-v04-grid">
+    <section class="detail-card profile-v04-card">
+        <div class="profile-v04-card-title">
+            <svg class="fm-icon">
+                <use href="/icons/fitmind-icons.svg#user">
+                </use>
+            </svg>
+            <h3>Основная информация</h3>
+        </div>
+        <div class="data-line">
+            <span>Пол</span>
+            <b>@(p.Gender ?? "Не указан")</b>
+        </div>
+        <div class="data-line">
+            <span>Активность</span>
+            <b>@(p.ActivityLevel?.Name ?? "Не указана")</b>
+        </div>
+        <div class="data-line">
+            <span>Уровень подготовки</span>
+            <b>@(p.TrainingLevel?.Name ?? "Не указан")</b>
+        </div>
+    </section>
+    <section class="detail-card profile-v04-card">
+        <div class="profile-v04-card-title">
+            <h3>Активные программы</h3>
+        </div>
+        @if(Model.ActivePrograms.Any()){foreach(var program in Model.ActivePrograms){<div class="data-line">
+        <span>@program.Kind</span>
+        <b>@program.Name</b>
+    </div>
+}}else{<p class="muted">Активных программ пока нет.</p>
+}
+<a asp-controller="Programs" asp-action="Index" class="ghost small">Выбрать программу</a>
+</section>
+<section class="detail-card profile-v04-card">
+    <div class="profile-v04-card-title">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#dumbbell">
+            </use>
+        </svg>
+        <h3>Тренировки</h3>
+    </div>
+    <div class="data-line">
+        <span>Место</span>
+        <b>@p.PlacesText</b>
+    </div>
+    <div class="data-line">
+        <span>Частота</span>
+        <b>@(p.WorkoutsPerWeek.HasValue ? $"{p.WorkoutsPerWeek} раз/нед." : "Не указана")</b>
+    </div>
+    <div class="profile-v04-formats">
+        <span>Форматы</span>
+        <div>
+            @if(Model.Formats.Any()){foreach (var f in Model.Formats) { <span class="pill">@f.Name</span> }}else{<span class="muted">Не выбраны</span>
+        }
+    </div>
+</div>
+</section>
+</div>
+<section class="detail-card profile-v04-about">
+    <div class="profile-v04-card-title">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#article">
+            </use>
+        </svg>
+        <h3>О себе</h3>
+    </div>
+    @if (string.IsNullOrWhiteSpace(p.AboutMe))
+    {
+    <p class="muted">Ты пока ничего не рассказал о себе. Этот текст можно добавить через редактирование профиля.</p>
+}
+else
+{
+<p>@p.AboutMe</p>
+}
+</section>

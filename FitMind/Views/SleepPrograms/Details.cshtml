@@ -1,0 +1,28 @@
+@model FitnessProgram
+@{
+    ViewData["Title"] = Model.Name;
+}
+<a asp-action="Index" class="back">← Программы сна и восстановления</a>
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="SleepPrograms" alt="Иллюстрация раздела «Программы сна»">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">Сон и восстановление</span>
+        <h1>@Model.Name</h1>
+        <p>@Model.Description</p>
+        <form asp-action="AddToMine" method="post">
+            <input type="hidden" name="id" value="@Model.Id"/>
+            <button class="primary">Добавить в мои программы</button>
+        </form>
+    </div>
+</div>
+<section class="panel">
+    <h2>Распорядок</h2>
+    @foreach (var item in Model.Items.OrderBy(x => x.Order)) { <div class="record-row">
+    <div>
+        <b>@item.Title</b>
+        <small>@item.Time?.ToString(@"hh\:mm")</small>
+    </div>
+    @if (item.Minutes.HasValue) { <span>@item.Minutes мин</span> }
+</div> }
+</section>

@@ -1,0 +1,44 @@
+@model UserRecoveryItemEditVm
+@{
+    ViewData["Title"]="Создать процедуру";
+}
+<a asp-action="Index" class="back">← Назад</a>
+<div class="page-head">
+    <div>
+        <h1>Создать процедуру восстановления</h1>
+        <p>Добавь свою процедуру в личный список.</p>
+    </div>
+</div>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form asp-action="CreateItem" method="post" enctype="multipart/form-data" class="program-builder-grid">
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="Image" type="hidden"/>
+    <section class="panel form-shell">
+        <div class="form-grid two">
+            <label>Название<input asp-for="Name"/>
+        </label>
+        <label>Категория<select asp-for="Category">
+        <option>Растяжка</option>
+        <option>Массаж</option>
+        <option>Сауна</option>
+        <option>Ванна</option>
+        <option>Прогулка</option>
+        <option>Дыхание</option>
+        <option>Другое</option>
+    </select>
+</label>
+</div>
+<label>Описание<textarea asp-for="Description" rows="5"></textarea></label>
+<div class="form-grid two">
+    <label>Длительность, мин<input asp-for="DurationMinutes" type="number"/>
+</label>
+<label>Своя картинка (необязательно)<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+</div>
+<div class="form-actions">
+    <a asp-action="Index" class="ghost">Отмена</a>
+    <button class="primary">Создать процедуру</button>
+</div>
+</section>
+</form>

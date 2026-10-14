@@ -1,0 +1,19 @@
+@model DayEntry
+@{
+    ViewData["Title"]="Добавить в мой день";
+    var done=Model.Status==DayEntryStatus.Done;
+}
+<a class="back" asp-action="Details" asp-route-id="@Model.Id">← К тренировке</a>
+<section class="panel">
+    <h1>@Model.Title</h1>
+    <form method="post" asp-action="AddToDay">
+        <input type="hidden" name="id" value="@Model.Id"/>
+        <label>Дата<input type="date" name="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required/>
+    </label>
+    <label>Время<input type="time" name="time" value="18:00" required/>
+</label>
+<label class="check">
+    <input type="checkbox" name="copy" value="true" checked="@done"/>Создать повтор тренировки (сохранить исходную запись)</label>
+    <button class="primary">Добавить в мой день</button>
+</form>
+</section>

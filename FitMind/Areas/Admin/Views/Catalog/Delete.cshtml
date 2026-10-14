@@ -1,0 +1,21 @@
+@model AdminContentVm
+@{
+    ViewData["Title"] = "Удаление";
+}
+<section class="admin-page-head">
+    <div>
+        <a class="back-link" asp-action="Edit" asp-route-kind="@Model.Kind" asp-route-id="@Model.Id">← Назад</a>
+        <h1>Удалить запись?</h1>
+        <p>Это действие необратимо. Связанные записи могут запретить удаление — тогда приложение сохранит данные и покажет ошибку.</p>
+    </div>
+</section>
+<section class="admin-panel confirm-card">
+    <h2>@Model.Name</h2>
+    <p>@Model.Description</p>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" name="kind" value="@Model.Kind" />
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="danger">Удалить окончательно</button>
+        <a class="ghost" asp-action="Edit" asp-route-kind="@Model.Kind" asp-route-id="@Model.Id">Отмена</a>
+    </form>
+</section>

@@ -1,0 +1,194 @@
+@model RecoveryRedesignVm
+@using System.Globalization
+@{
+    ViewData["Title"]="Сон и восстановление";
+    var ru=new CultureInfo("ru-RU");
+    var gridStart=new DateTime(Model.Month.Year,Model.Month.Month,1);
+    gridStart=gridStart.AddDays(-(((int)gridStart.DayOfWeek+6)%7));
+    var records=Model.SleepRecords.Concat(Model.RecoveryRecords).OrderByDescending(x=>x.Start).ToList();
+}
+<section class="personal-page-head">
+    <div>
+        <h1>Сон и восстановление</h1>
+        <p>Программы сна, процедуры и фактические записи в одном месте.</p>
+    </div>
+</section>
+<section class="week-strip panel personal-week">
+    <div class="week-label">
+        <a class="icon-button" asp-route-date="@Model.WeekStart.AddDays(-7).ToString("yyyy-MM-dd")">←</a>
+        <div>
+            <b>@Model.WeekStart.ToString("MMMM yyyy",ru)</b>
+        </div>
+        <a class="icon-button" asp-route-date="@Model.WeekStart.AddDays(7).ToString("yyyy-MM-dd")">→</a>
+    </div>
+    <div class="week-days">
+        @for(var i=0;i<7;i++){var day=Model.WeekStart.AddDays(i);<a class="week-day @(day.Date==Model.Date.Date?"selected":"")" asp-route-date="@day.ToString("yyyy-MM-dd")">
+        <span>@day.ToString("ddd",ru)</span>
+        <b>@day.Day</b>
+    </a>
+}
+</div>
+<a class="ghost" href="#personal-calendar">Календарь</a>
+</section>
+<section class="panel personal-today">
+    <span class="personal-today__icon">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#moon">
+            </use>
+        </svg>
+    </span>
+    <div>
+        <h2>@(records.Any()?"Записи за выбранный день":"За этот день записей пока нет")</h2>
+        <p>@Model.Date.ToString("d MMMM, dddd",ru)</p>
+        <small>Запиши сон или выполненную процедуру.</small>
+    </div>
+</section>
+<div class="personal-collections">
+    <section class="panel personal-collection">
+        <div class="panel-head">
+            <h2>Мои программы <span class="count-badge">@Model.Plans.Count</span>
+        </h2>
+    </div>
+    @if(!Model.Plans.Any()){
+        <div class="personal-empty">
+            <span class="personal-empty__icon">▣</span>
+            <div>
+                <h3>Программ пока нет</h3>
+                <p>Выбери готовую программу или создай свою.</p>
+            </div>
+        </div>
+    }else{@foreach(var p in Model.Plans){
+    <div class="personal-program-row">
+        <catalog-placeholder kind="SleepPrograms" custom-src="@p.Image" alt="Обложка программы сна">
+        </catalog-placeholder>
+        <div class="personal-program-row__copy">
+            <b>@p.Name</b>
+            <small>@p.Items.Count пунктов · @p.Weeks нед.</small>
+        </div>
+        <div class="personal-program-row__actions">
+            <span class="tag @(p.SourceProgramId.HasValue?"blue-tag":"")">@(p.SourceProgramId.HasValue?"из базы":"создана мной")</span>
+            <form asp-action="SetPlanActive" method="post">
+                <input type="hidden" name="id" value="@p.Id"/>
+                <input type="hidden" name="active" value="@(!p.Active)"/>
+                <button class="status-pill @(p.Active?"on":"off")">@(p.Active?"Активна":"Не активна")</button>
+            </form>
+            <a class="ghost small" asp-action="CreatePlan" asp-route-id="@p.Id">Открыть</a>
+            <form asp-action="DeletePlan" method="post" data-confirm="Удалить программу восстановления?">
+                <input type="hidden" name="id" value="@p.Id"/>
+                <button class="ghost small">Удалить</button>
+            </form>
+        </div>
+    </div>
+}}
+<div class="personal-collection__actions">
+    <a class="outline-accent" asp-action="CreatePlan">+ Создать программу</a>
+    <a class="ghost" asp-controller="SleepPrograms" asp-action="Index">Выбрать из базы →</a>
+</div>
+</section>
+<section class="panel personal-collection">
+    <div class="panel-head">
+        <h2>Мои методы восстановления <span class="count-badge">@Model.MyItems.Count</span>
+    </h2>
+    <div>
+        <a class="outline-accent" asp-action="CreateItem">+ Создать метод</a>
+        <a class="ghost" asp-controller="RecoveryLibrary" asp-action="Index">Добавить из базы</a>
+    </div>
+</div>
+@if(!Model.MyItems.Any()){
+    <div class="personal-empty">
+        <span class="personal-empty__icon">◇</span>
+        <div>
+            <h3>Методов пока нет</h3>
+            <p>Добавь метод из базы или создай свой.</p>
+        </div>
+    </div>
+}else{@foreach(var item in Model.MyItems){var fromBase=item.SourceId.HasValue;<div class="personal-item-row">
+<catalog-placeholder kind="Recovery" custom-src="@item.Image" alt="Обложка метода восстановления">
+</catalog-placeholder>
+<div>
+    <b>@item.Name</b>
+    <small>@item.Category · @(item.MinMinutes?.ToString()??"—") мин</small>
+</div>
+<div class="personal-item-actions">
+    <span class="tag @(fromBase?"blue-tag":"")">@(fromBase?"из базы":"создано мной")</span>
+    @if(fromBase){
+        <a class="ghost small" asp-controller="RecoveryLibrary" asp-action="Details" asp-route-id="@item.SourceId">Открыть</a>
+    }else{<a class="ghost small" asp-action="CreateItem" asp-route-id="@item.Id">Открыть</a>
+}
+<a class="ghost small" asp-action="CreateItem" asp-route-id="@item.Id">Изменить</a>
+<form asp-action="DeleteItem" method="post" data-confirm="Удалить метод из личной коллекции?">
+    <input type="hidden" name="id" value="@item.Id"/>
+    <button class="ghost small">Удалить</button>
+</form>
+</div>
+</div>
+}}
+</section>
+</div>
+<section class="panel personal-recent">
+    <div class="panel-head">
+        <h2>Последние записи</h2>
+        <a class="primary" asp-action="AddRecord">+ Добавить запись</a>
+    </div>
+    @if(!records.Any()){
+        <div class="personal-empty personal-empty--center">
+            <span class="personal-empty__icon">▤</span>
+            <div>
+                <h3>Пока нет записей</h3>
+                <p>Здесь появятся записи сна и процедур.</p>
+            </div>
+        </div>
+    }else{@foreach(var x in records.Take(5)){
+    <div class="record-row">
+        <div>
+            <b>@x.Title</b>
+            <small>@x.Start.ToString("d MMM · HH:mm",ru)</small>
+        </div>
+        <span>@(x.Value?.ToString("0")??"—")</span>
+        <form asp-action="DeleteRecord" method="post" data-confirm="Удалить запись?">
+            <input type="hidden" name="id" value="@x.Id"/>
+            <button class="ghost small danger-action">Удалить</button>
+        </form>
+    </div>
+}}
+</section>
+<div class="personal-bottom">
+    <section class="panel personal-calendar" id="personal-calendar">
+        <div class="panel-head">
+            <div>
+                <h2>Календарь сна и восстановления</h2>
+                <p>@Model.Month.ToString("MMMM yyyy",ru)</p>
+            </div>
+            <div class="calendar-nav">
+                <a asp-route-month="@Model.Month.AddMonths(-1).ToString("yyyy-MM-dd")">←</a>
+                <a asp-route-month="@Model.Month.AddMonths(1).ToString("yyyy-MM-dd")">→</a>
+            </div>
+        </div>
+        <div class="calendar-week">
+            @foreach(var d in new[]{"Пн","Вт","Ср","Чт","Пт","Сб","Вс"}){<span>@d</span>
+        }
+    </div>
+    <div class="calendar-grid">
+        @for(var i=0;i<42;i++){var day=gridStart.AddDays(i);<a class="calendar-day @(day.Month!=Model.Month.Month?"muted-day":"") @(day.Date==Model.Date.Date?"today":"")" asp-route-date="@day.ToString("yyyy-MM-dd")">
+        <b>@day.Day</b>
+        @if(Model.MarkedDates.Any(x=>x.Date==day.Date)){
+            <i>
+            </i>
+        }
+    </a>
+}
+</div>
+</section>
+<section class="panel personal-notes">
+    <h2>Заметки</h2>
+    <form asp-action="AddNote" method="post">
+        <input name="title" maxlength="200" placeholder="Заголовок заметки (необязательно)"/><textarea name="text" rows="5" maxlength="2000" required placeholder="Новая заметка о сне и восстановлении"></textarea><button class="ghost">+ Заметка</button>
+    </form>
+    @foreach(var note in Model.Notes.Take(3)){
+        <div class="note-row">
+            <b>@(note.Title??"Заметка")</b>
+            <span>@note.Text</span>
+        </div>
+    }
+</section>
+</div>

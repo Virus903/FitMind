@@ -1,0 +1,30 @@
+@model Article
+@{
+    ViewData["Title"]=Model.Title;
+}
+<article class="article-page catalog-article">
+    <a asp-action="Index" class="back">← Назад к базе знаний</a>
+    <span class="pill">@Model.Category?.Name</span>
+    <h1>@Model.Title</h1>
+    <p class="lead">@Model.ShortDescription</p>
+    <div class="article-meta">@Model.PublishedAt.ToString("dd MMMM yyyy") · @(Model.ReadingMinutes??5) мин. чтения</div>
+    <catalog-placeholder class="article-cover" kind="Knowledge" alt="Иллюстрация раздела «База знаний»">
+    </catalog-placeholder>
+    <div class="article-body">
+        @foreach(var p in Model.Text.Split('\n',StringSplitOptions.RemoveEmptyEntries)){
+            <p>@p</p>
+        }
+    </div>
+    @if(!string.IsNullOrWhiteSpace(Model.Tips)){
+        <div class="article-note">
+            <h3>Практические советы</h3>
+            <p class="preline">@Model.Tips</p>
+        </div>
+    }
+    @if(!string.IsNullOrWhiteSpace(Model.Conclusion)){
+        <div class="article-note">
+            <h3>Вывод</h3>
+            <p class="preline">@Model.Conclusion</p>
+        </div>
+    }
+</article>

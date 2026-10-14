@@ -1,0 +1,196 @@
+@model FoodDiaryRedesignVm
+@using FitMind.Models
+@using FitMind.Services
+@using System.Globalization
+@{
+    ViewData["Title"]="Питание и вода";
+    var ru=new CultureInfo("ru-RU");
+    var gridStart=new DateTime(Model.Month.Year,Model.Month.Month,1);
+    gridStart=gridStart.AddDays(-(((int)gridStart.DayOfWeek+6)%7));
+}
+<section class="personal-page-head">
+    <div>
+        <h1>Питание и вода</h1>
+        <p>Записывай приёмы пищи, добавляй продукты и следи за питанием.</p>
+    </div>
+</section>
+<section class="week-strip panel personal-week">
+    <div class="week-label">
+        <a class="icon-button" asp-route-date="@Model.WeekStart.AddDays(-7).ToString("yyyy-MM-dd")">←</a>
+        <div>
+            <b>@Model.WeekStart.ToString("MMMM yyyy",ru)</b>
+        </div>
+        <a class="icon-button" asp-route-date="@Model.WeekStart.AddDays(7).ToString("yyyy-MM-dd")">→</a>
+    </div>
+    <div class="week-days">
+        @for(var i=0;i<7;i++){var day=Model.WeekStart.AddDays(i);<a class="week-day @(day.Date==Model.Date.Date?"selected":"")" asp-route-date="@day.ToString("yyyy-MM-dd")">
+        <span>@day.ToString("ddd",ru)</span>
+        <b>@day.Day</b>
+    </a>
+}
+</div>
+<a class="ghost" href="#personal-calendar">Календарь</a>
+</section>
+<section class="panel personal-today">
+    <span class="personal-today__icon">
+        <svg class="fm-icon">
+            <use href="/icons/fitmind-icons.svg#food">
+            </use>
+        </svg>
+    </span>
+    <div>
+        <h2>Питание за выбранный день</h2>
+        <p>@Model.Date.ToString("d MMMM, dddd",ru)</p>
+        <b>@Model.Calories.ToString("0") ккал · @Model.WaterMl мл</b>
+        <small>@(Model.ActivePlan is null?"Программа не выбрана.":$"Программа: {Model.ActivePlan.Name}")</small>
+    </div>
+</section>
+<div class="personal-collections">
+    <section class="panel personal-collection">
+        <div class="panel-head">
+            <h2>Мои программы питания <span class="count-badge">@Model.Plans.Count</span>
+        </h2>
+    </div>
+    @if(!Model.Plans.Any()){
+        <div class="personal-empty">
+            <span class="personal-empty__icon">▣</span>
+            <div>
+                <h3>Программ пока нет</h3>
+                <p>Создай свою программу или добавь готовую из базы.</p>
+            </div>
+        </div>
+    }else{@foreach(var p in Model.Plans){
+    <div class="personal-program-row">
+        <catalog-placeholder kind="NutritionPrograms" custom-src="@p.Image" alt="Обложка программы питания">
+        </catalog-placeholder>
+        <div class="personal-program-row__copy">
+            <b>@p.Name</b>
+            <small>@p.CaloriesPerDay ккал · @p.WaterMl мл · @p.Items.Count пунктов</small>
+        </div>
+        <div class="personal-program-row__actions">
+            <span class="tag @(p.SourceProgramId.HasValue?"blue-tag":"")">@(p.SourceProgramId.HasValue?"из базы":"создана мной")</span>
+            <form asp-action="SetPlanActive" method="post">
+                <input type="hidden" name="id" value="@p.Id"/>
+                <input type="hidden" name="active" value="@(!p.Active)"/>
+                <button class="status-pill @(p.Active?"on":"off")">@(p.Active?"Активна":"Не активна")</button>
+            </form>
+            <a class="ghost small" asp-action="CreatePlan" asp-route-id="@p.Id">Открыть</a>
+            <form asp-action="DeletePlan" method="post" data-confirm="Удалить программу питания?">
+                <input type="hidden" name="id" value="@p.Id"/>
+                <button class="ghost small">Удалить</button>
+            </form>
+        </div>
+    </div>
+}}
+<div class="personal-collection__actions">
+    <a class="outline-accent" asp-action="CreatePlan">+ Создать программу</a>
+    <a class="ghost" asp-controller="NutritionPrograms" asp-action="Index">Добавить из базы →</a>
+</div>
+</section>
+<section class="panel personal-collection">
+    <div class="panel-head">
+        <h2>Мои продукты и рецепты <span class="count-badge">@Model.MyFood.Count</span>
+    </h2>
+    <div>
+        <a class="outline-accent" asp-action="CreateFoodItem">+ Создать продукт или рецепт</a>
+        <a class="ghost" asp-controller="FoodLibrary" asp-action="Index">Добавить из базы</a>
+    </div>
+</div>
+@if(!Model.MyFood.Any()){
+    <div class="personal-empty">
+        <span class="personal-empty__icon">▤</span>
+        <div>
+            <h3>Твоя коллекция пока пуста</h3>
+            <p>Сохраняй продукты и рецепты для своего дневника.</p>
+        </div>
+    </div>
+}else{@foreach(var x in Model.MyFood){var fromBase=x.SourceId.HasValue;<div class="personal-item-row">
+<catalog-placeholder kind="Food" custom-src="@x.Image" alt="Обложка продукта или рецепта">
+</catalog-placeholder>
+<div>
+    <b>@x.Name</b>
+    <small>@(x.Kind==FoodProductKind.Recipe?"Рецепт":"Продукт") · @x.Calories.ToString("0") ккал / 100 г</small>
+</div>
+<div class="personal-item-actions">
+    <span class="tag @(fromBase?"blue-tag":"")">@(fromBase?"из базы":"создано мной")</span>
+    @if(fromBase){
+        <a class="ghost small" asp-controller="FoodLibrary" asp-action="@(x.Kind==FoodProductKind.Recipe?"Recipe":"Product")" asp-route-id="@x.SourceId">Открыть</a>
+    }else{<a class="ghost small" asp-action="CreateFoodItem" asp-route-id="@x.Id">Открыть</a>
+}
+<a class="ghost small" asp-action="CreateFoodItem" asp-route-id="@x.Id">Изменить</a>
+<form asp-action="DeleteFood" method="post" data-confirm="Удалить из личной коллекции?">
+    <input type="hidden" name="id" value="@x.Id"/>
+    <button class="ghost small">Удалить</button>
+</form>
+</div>
+</div>
+}}
+</section>
+</div>
+<section class="panel personal-recent">
+    <div class="panel-head">
+        <h2>Последние записи</h2>
+        <a class="primary" asp-action="AddMeal" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">+ Добавить запись</a>
+    </div>
+    @if(!Model.Entries.Any()){
+        <div class="personal-empty personal-empty--center">
+            <span class="personal-empty__icon">▤</span>
+            <div>
+                <h3>Пока нет записей</h3>
+                <p>Добавь первый приём пищи или воду.</p>
+            </div>
+        </div>
+    }else{@foreach(var x in Model.Entries.Take(5)){
+    <div class="record-row">
+        <div>
+            <b>@x.Title</b>
+            <small>@x.Start.ToString("d MMM · HH:mm",ru)</small>
+        </div>
+        <span>@(x.Type==ProgramItemType.Water?$"{x.Value:0} мл":x.FoodItems.Sum(NutritionHelper.ItemCalories).ToString("0")+" ккал")</span>
+        <form asp-action="DeleteEntry" method="post" data-confirm="Удалить запись?">
+            <input type="hidden" name="id" value="@x.Id"/>
+            <button class="ghost small danger-action">Удалить</button>
+        </form>
+    </div>
+}}
+</section>
+<div class="personal-bottom">
+    <section class="panel personal-calendar" id="personal-calendar">
+        <div class="panel-head">
+            <div>
+                <h2>Календарь питания и воды</h2>
+                <p>@Model.Month.ToString("MMMM yyyy",ru)</p>
+            </div>
+            <div class="calendar-nav">
+                <a asp-route-month="@Model.Month.AddMonths(-1).ToString("yyyy-MM-dd")">←</a>
+                <a asp-route-month="@Model.Month.AddMonths(1).ToString("yyyy-MM-dd")">→</a>
+            </div>
+        </div>
+        <div class="calendar-week">
+            @foreach(var d in new[]{"Пн","Вт","Ср","Чт","Пт","Сб","Вс"}){<span>@d</span>
+        }
+    </div>
+    <div class="calendar-grid">
+        @for(var i=0;i<42;i++){var day=gridStart.AddDays(i);<a class="calendar-day @(day.Month!=Model.Month.Month?"muted-day":"") @(day.Date==Model.Date.Date?"today":"")" asp-route-date="@day.ToString("yyyy-MM-dd")" asp-route-month="@Model.Month.ToString("yyyy-MM-dd")">
+        <b>@day.Day</b>
+        @if(Model.MarkedDates.Any(x=>x.Date==day.Date)){
+            <i>
+            </i>
+        }
+    </a>
+}
+</div>
+</section>
+<section class="panel personal-notes">
+    <h2>Заметки</h2>
+    <form asp-action="AddNote" method="post">
+        <input name="title" maxlength="200" placeholder="Заголовок заметки (необязательно)"/><textarea name="text" rows="5" maxlength="2000" required placeholder="Новая заметка о питании и воде"></textarea><button class="ghost">+ Заметка</button>
+    </form>
+    @foreach(var note in Model.Notes.Take(3)){
+        <div class="note-row">
+            <b>@(note.Title??"Заметка")</b>
+            <span>@note.Text</span>
+        </div>
+    }
+</section>
+</div>

@@ -1,0 +1,76 @@
+/* Темы FitMind. Все цвета интерфейса берутся только из этих переменных.
+   :root — тёмная тема (по умолчанию), html[data-theme="light"] — светлая,
+   html[data-theme="system"] — как в системе (светлая, если система светлая). */
+:root{
+  color-scheme:dark;
+  --bg-page:#070A11;          /* фон страницы */
+  --bg-sidebar:#090E18;       /* фон боковой панели и второго уровня */
+  --bg-card:#0D121C;          /* фон карточки */
+  --bg-card-hover:#151C2C;    /* фон карточки при наведении, вложенные блоки */
+  --bg-input:#0B101A;         /* фон поля ввода */
+  --surface-tint:rgba(255,255,255,.04);
+  --border:#252D42;           /* рамка */
+  --border-strong:#353F58;    /* рамка контрастнее (разделители кнопок, полос) */
+  --border-focus:#8B5CDD;     /* рамка поля в фокусе */
+  --text-primary:#F6F7FB;     /* текст основной */
+  --text-secondary:#B8C1D8;   /* текст второстепенный */
+  --text-muted:#98A2BD;       /* текст приглушённый */
+  --accent:#8B5CDD;           /* акцент */
+  --accent-hover:#9B72E4;     /* акцент при наведении */
+  --accent-text:#B48CFF;      /* акцентный текст и иконки */
+  --accent-soft:#1D1531;      /* мягкая акцентная заливка */
+  --accent-border:#4A3370;    /* акцентная рамка */
+  --text-on-accent:#FFFFFF;   /* текст на акценте */
+  --success:#39D98A;  --success-soft:#0E3328;  --success-border:#22664C;
+  --danger:#FF6B7A;   --danger-soft:#2F151D;   --danger-border:#6A2E3C;
+  --warning:#F8C15C;  --warning-soft:#2F2617;  --warning-border:#5F4522;
+  --info:#5AADFF;     --info-soft:#102841;     --info-border:#245A88;
+  --shadow-color:rgba(0,0,0,.45);
+  --shadow:0 12px 32px var(--shadow-color);
+  --overlay:rgba(7,10,18,.88);
+
+  /* прежние имена переменных (используются в разметке и скриптах) */
+  --fm-bg:var(--bg-page); --fm-sidebar:var(--bg-sidebar); --fm-card:var(--bg-card); --fm-panel:var(--bg-card);
+  --fm-border:var(--border); --fm-text:var(--text-primary); --fm-muted:var(--text-muted);
+  --fm-purple:var(--accent); --fm-purple2:var(--accent-hover); --fm-green:var(--success);
+  --fm-red:var(--danger); --fm-blue:var(--info); --fm-yellow:var(--warning);
+  --bg:var(--bg-page); --panel:var(--bg-card); --panel2:var(--bg-card-hover); --text:var(--text-primary); --muted:var(--text-muted);
+  --bg-primary:var(--bg-page); --bg-secondary:var(--bg-sidebar); --surface-primary:var(--bg-card); --surface-hover:var(--bg-card-hover);
+  --border-primary:var(--border); --accent-primary:var(--accent);
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg-page:#F4F6FB; --bg-sidebar:#FFFFFF; --bg-card:#FFFFFF; --bg-card-hover:#EEF1F8; --bg-input:#FFFFFF;
+  --surface-tint:rgba(23,27,38,.04);
+  --border:#D7DCEB; --border-strong:#C3CADB; --border-focus:#8B5CDD;
+  --text-primary:#171B26; --text-secondary:#4C566B; --text-muted:#69758B;
+  --accent:#8B5CDD; --accent-hover:#7543C3; --accent-text:#6D35C5; --accent-soft:#F0EAFD; --accent-border:#CDB9F2;
+  --text-on-accent:#FFFFFF;
+  --success:#23784F; --success-soft:#E4F5EC; --success-border:#9FD3B9;
+  --danger:#C23347;  --danger-soft:#FDECEE;  --danger-border:#F0B3BC;
+  --warning:#8A6216; --warning-soft:#FBF2DF; --warning-border:#E8CF98;
+  --info:#2F6EB5;    --info-soft:#E7F0FC;    --info-border:#A9C8EC;
+  --shadow-color:rgba(23,27,38,.10);
+  --overlay:rgba(23,27,38,.45);
+}
+html[data-theme="light"] .theme-image-dark{display:none}
+html[data-theme="light"] .theme-image-light{display:block}
+@media (prefers-color-scheme: light){
+  html[data-theme="system"]{
+    color-scheme:light;
+    --bg-page:#F4F6FB; --bg-sidebar:#FFFFFF; --bg-card:#FFFFFF; --bg-card-hover:#EEF1F8; --bg-input:#FFFFFF;
+    --surface-tint:rgba(23,27,38,.04);
+    --border:#D7DCEB; --border-strong:#C3CADB; --border-focus:#8B5CDD;
+    --text-primary:#171B26; --text-secondary:#4C566B; --text-muted:#69758B;
+    --accent:#8B5CDD; --accent-hover:#7543C3; --accent-text:#6D35C5; --accent-soft:#F0EAFD; --accent-border:#CDB9F2;
+    --text-on-accent:#FFFFFF;
+    --success:#23784F; --success-soft:#E4F5EC; --success-border:#9FD3B9;
+    --danger:#C23347;  --danger-soft:#FDECEE;  --danger-border:#F0B3BC;
+    --warning:#8A6216; --warning-soft:#FBF2DF; --warning-border:#E8CF98;
+    --info:#2F6EB5;    --info-soft:#E7F0FC;    --info-border:#A9C8EC;
+    --shadow-color:rgba(23,27,38,.10);
+    --overlay:rgba(23,27,38,.45);
+  }
+  html[data-theme="system"] .theme-image-dark{display:none}
+  html[data-theme="system"] .theme-image-light{display:block}
+}

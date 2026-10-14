@@ -1,0 +1,55 @@
+@model SupplementPlanEditVm
+@{
+    ViewData["Title"] = Model.Id.HasValue ? "Изменить схему" : "Новая схема";
+    var supplements = (List<Supplement>)ViewBag.Items;
+    if (!Model.Items.Any()) Model.Items = [new()];
+    var days = new[] { (DayOfWeek.Monday,"Пн"),(DayOfWeek.Tuesday,"Вт"),(DayOfWeek.Wednesday,"Ср"),(DayOfWeek.Thursday,"Чт"),(DayOfWeek.Friday,"Пт"),(DayOfWeek.Saturday,"Сб"),(DayOfWeek.Sunday,"Вс") };
+}
+<section class="page-head">
+    <div>
+        <span class="eyebrow">Мои добавки</span>
+        <h1>@ViewData["Title"]</h1>
+        <p>Каждое отдельное время приёма задаётся своей строкой.</p>
+    </div>
+    <a class="ghost" asp-action="Index">Отмена</a>
+</section>
+<form asp-action="CreatePlan" method="post" enctype="multipart/form-data" class="panel">
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="Image" type="hidden"/>
+    <div asp-validation-summary="ModelOnly">
+    </div>
+    <div class="form-grid">
+        <label>Название<input asp-for="Name" required/>
+    </label>
+    <label>Дата начала<input asp-for="StartDate" type="date"/>
+</label>
+<label>Срок, недель<input asp-for="Weeks" type="number" min="1" max="104"/>
+</label>
+<label class="full">Описание<textarea asp-for="Description"></textarea></label>
+<label class="full">Своя обложка (необязательно)<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+<catalog-placeholder class="full program-form-cover" kind="Supplements" custom-src="@Model.Image" alt="Обложка схемы добавок">
+</catalog-placeholder>
+</div>
+<h2>Приёмы</h2>
+@for (var i = 0; i < Math.Max(8, Model.Items.Count); i++) { var exists = i < Model.Items.Count; <div class="panel">
+<div class="form-grid">
+    <label>Добавка<select name="Items[@i].SupplementId">
+    <option value="">—</option>
+    @foreach (var item in supplements) { <option value="@item.Id" selected="@(exists && Model.Items[i].SupplementId == item.Id)">@item.Name</option> }
+</select>
+</label>
+<label>Дозировка<input name="Items[@i].Dose" value="@(exists ? Model.Items[i].Dose : null)" placeholder="5 г"/>
+</label>
+<label>Время<input name="Items[@i].Time" value="@(exists ? Model.Items[i].Time?.ToString(@"hh\:mm") : null)" type="time"/>
+</label>
+</div>
+<div class="actions">
+    @foreach (var day in days) { <label class="check">
+    <input type="checkbox" name="Items[@i].Days" value="@((int)day.Item1)" checked="@(exists && Model.Items[i].Days.Contains(day.Item1))"/>
+    <span>@day.Item2</span>
+</label> }
+</div>
+</div> }
+<button class="primary">Сохранить схему</button>
+</form>

@@ -1,0 +1,55 @@
+@model RecoveryPlanEditVm
+@using FitMind.Models
+@{
+    ViewData["Title"] = Model.Id.HasValue ? "Изменить программу" : "Новая программа";
+    var methods = (List<RecoveryMethod>)ViewBag.Methods;
+    if (!Model.Items.Any()) { Model.Items = [new(), new(), new()];
+    };
+}
+<section class="page-head">
+    <div>
+        <span class="eyebrow">Сон и восстановление</span>
+        <h1>@ViewData["Title"]</h1>
+    </div>
+    <a class="ghost" asp-action="Index">Отмена</a>
+</section>
+<form asp-action="CreatePlan" method="post" enctype="multipart/form-data" class="panel">
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="Image" type="hidden"/>
+    <div asp-validation-summary="ModelOnly">
+    </div>
+    <div class="form-grid">
+        <label>Название<input asp-for="Name" required/>
+    </label>
+    <label>Начало<input asp-for="StartDate" type="date"/>
+</label>
+<label>Недель<input asp-for="Weeks" type="number" min="1" max="104"/>
+</label>
+<label class="full">Описание<textarea asp-for="Description"></textarea></label>
+<label class="full">Своя обложка (необязательно)<input asp-for="ImageFile" type="file" accept="image/png,image/jpeg,image/webp"/>
+</label>
+<catalog-placeholder class="full program-form-cover" kind="SleepPrograms" custom-src="@Model.Image" alt="Обложка программы сна">
+</catalog-placeholder>
+</div>
+<h2>Распорядок</h2>
+@for (var i = 0; i < Math.Max(6, Model.Items.Count); i++) { var exists = i < Model.Items.Count; <div class="form-grid">
+<label>Тип<select name="Items[@i].Type">
+<option value="3" selected="@(exists && Model.Items[i].Type == ProgramItemType.Bedtime)">Отбой</option>
+<option value="4" selected="@(exists && Model.Items[i].Type == ProgramItemType.WakeUp)">Подъём</option>
+<option value="5" selected="@(exists && Model.Items[i].Type == ProgramItemType.Procedure)">Процедура</option>
+</select>
+</label>
+<label>Название<input name="Items[@i].Name" value="@(exists ? Model.Items[i].Name : null)"/>
+</label>
+<label>Время<input name="Items[@i].Time" value="@(exists ? Model.Items[i].Time?.ToString(@"hh\:mm") : null)" type="time"/>
+</label>
+<label>Минут<input name="Items[@i].DurationMinutes" value="@(exists ? Model.Items[i].DurationMinutes : null)" type="number" min="1" max="1440"/>
+</label>
+<label>Метод<select name="Items[@i].RecoveryMethodId">
+<option value="">—</option>
+@foreach (var method in methods) { <option value="@method.Id" selected="@(exists && Model.Items[i].RecoveryMethodId == method.Id)">@method.Name</option> }
+</select>
+</label>
+</div> }
+<button class="primary">Сохранить программу</button>
+</form>

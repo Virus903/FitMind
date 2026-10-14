@@ -1,0 +1,30 @@
+@model IEnumerable<FitMind.Models.DayEntry>
+@using FitMind.Models
+@{
+    ViewData["Title"]="История питания и воды";
+}
+<a asp-action="Index" class="back">← Питание и вода</a>
+<h1>История питания и воды</h1>
+<section class="panel">
+    @if(!Model.Any()){
+        <div class="empty-line">
+            <b>Записей пока нет</b>
+        </div>
+    }
+    @foreach(var x in Model){
+        <div class="record-row">
+            <div>
+                <b>@x.Title</b>
+                <p>@x.Start.ToString("dd.MM.yyyy HH:mm")</p>
+                @foreach(var i in x.FoodItems){
+                    <small>@(i.Product?.Name??i.CustomName) · @i.Grams.ToString("0") г</small>
+                }
+            </div>
+            <span>@(x.Type==ProgramItemType.Water?$"{x.Value:0} мл":x.Status.ToString())</span>
+            <form asp-action="DeleteEntry" method="post" data-confirm="Удалить запись?">
+                <input type="hidden" name="id" value="@x.Id"/>
+                <button class="ghost small">Удалить</button>
+            </form>
+        </div>
+    }
+</section>

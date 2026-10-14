@@ -1,0 +1,47 @@
+@model RecoveryMethod
+@{
+    ViewData["Title"]=Model.Name;
+}
+<a asp-action="Index" class="back">← Назад к базе восстановления</a>
+<div class="detail-hero catalog-detail-hero">
+    <catalog-placeholder kind="Recovery" alt="Иллюстрация раздела «Методы восстановления»">
+    </catalog-placeholder>
+    <div>
+        <span class="pill">@Model.Category</span>
+        <h1>@Model.Name</h1>
+        <p>@Model.FullDescription</p>
+        <div class="info-grid">
+            <div>
+                <small>Минимум</small>
+                <b>@(Model.MinMinutes?.ToString()??"—") мин.</b>
+            </div>
+            <div>
+                <small>Максимум</small>
+                <b>@(Model.MaxMinutes?.ToString()??"—") мин.</b>
+            </div>
+        </div>
+        <div class="detail-actions">
+            <div asp-validation-summary="All" class="validation">
+            </div>
+            <form asp-controller="MyRecovery" asp-action="AddFromBase" method="post">
+                <input type="hidden" name="id" value="@Model.Id"/>
+                <button class="primary">Добавить в мои процедуры</button>
+            </form>
+            <a asp-controller="MyRecovery" asp-action="AddRecord" asp-route-type="Procedure" asp-route-recoveryMethodId="@Model.Id" class="ghost">Записать процедуру</a>
+        </div>
+    </div>
+</div>
+<div class="detail-sections">
+    <section class="detail-card">
+        <h2>Польза</h2>
+        <p class="preline">@Model.Benefits</p>
+    </section>
+    <section class="detail-card">
+        <h2>Рекомендации</h2>
+        <p class="preline">@Model.Recommendations</p>
+    </section>
+    <section class="detail-card detail-card--wide">
+        <h2>Предупреждения</h2>
+        <p class="preline">@Model.Warnings</p>
+    </section>
+</div>

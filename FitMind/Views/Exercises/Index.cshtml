@@ -1,0 +1,74 @@
+@model IEnumerable<Exercise>
+@{
+    ViewData["Title"]="Упражнения";
+    var muscles=(IEnumerable<MuscleGroup>)ViewBag.Muscles;
+}
+<div class="page-head">
+    <div>
+        <h1>Упражнения</h1>
+        <p>Информационная база упражнений. Просматривай технику и добавляй готовое упражнение в личную тренировку.</p>
+    </div>
+</div>
+<div asp-validation-summary="All" class="validation">
+</div>
+<form method="get" class="filterbar library-filter">
+    <input name="q" value="@ViewBag.Q" placeholder="Поиск упражнений..."/>
+    <select name="muscle" data-current="@ViewBag.Muscle">
+        <option value="">Все мышцы</option>
+        @foreach(var m in muscles){
+            <option>@m.Name</option>
+        }
+    </select>
+    <select name="place" data-current="@ViewBag.Place">
+        <option value="">Любое место</option>
+        <option>Зал</option>
+        <option>Дом</option>
+        <option>В любом месте</option>
+    </select>
+    <select name="difficulty" data-current="@ViewBag.Difficulty">
+        <option value="">Любая сложность</option>
+        <option>Новичок</option>
+        <option>Средний</option>
+        <option>Продвинутый</option>
+    </select>
+    <select name="sort" data-current="@Context.Request.Query["sort"]">
+        <option value="">По названию</option>
+        <option value="difficulty">По сложности</option>
+    </select>
+    <button class="primary">Найти</button>
+</form>
+@if(!Model.Any()){
+    <section class="empty-state">
+        <div class="empty-icon">
+            <svg class="fm-icon" aria-hidden="true">
+                <use href="/icons/fitmind-icons.svg#dumbbell">
+                </use>
+            </svg>
+        </div>
+        <h2>Упражнения не найдены</h2>
+        <p>Измени параметры поиска или сбрось фильтры.</p>
+        <a class="ghost" asp-action="Index">Сбросить фильтры</a>
+    </section>
+}else{<div class="library-grid">
+@foreach(var x in Model){
+    <article class="library-card">
+        <catalog-placeholder kind="Exercises" alt="Иллюстрация раздела «Упражнения»">
+        </catalog-placeholder>
+        <div class="library-card-body">
+            <div class="tag-row">
+                <span class="pill">@x.Category?.Name</span>
+                <span class="pill subtle">@x.Difficulty</span>
+            </div>
+            <h3>@x.Name</h3>
+            <p>@x.Description</p>
+            <div class="library-meta">
+                <span>@(x.Equipment??"Без оборудования")</span>
+                <span>@x.Place</span>
+            </div>
+            <a asp-action="Details" asp-route-id="@x.Id" class="ghost full">Подробнее</a>
+        </div>
+    </article>
+}
+</div>
+}
+<partial name="_Pagination" model="(FitMind.ViewModels.PaginationVm)ViewBag.Pagination" />

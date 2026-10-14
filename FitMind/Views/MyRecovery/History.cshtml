@@ -1,0 +1,39 @@
+@model RecoveryRedesignVm
+@{
+    ViewData["Title"] = "История сна и восстановления";
+}
+<section class="page-head">
+    <div>
+        <span class="eyebrow">Сон и восстановление</span>
+        <h1>История</h1>
+    </div>
+    <a class="ghost" asp-action="Index">Назад</a>
+</section>
+<section class="panel">
+    <h2>Сон</h2>
+    @if (!Model.SleepRecords.Any()) { <p class="muted">Записей пока нет.</p> }
+    @foreach (var item in Model.SleepRecords) { <div class="record-row">
+    <div>
+        <b>@item.Start.ToString("dd.MM.yyyy HH:mm") — @item.End?.ToString("dd.MM.yyyy HH:mm")</b>
+        <small>Оценка: @(item.Rating?.ToString() ?? "—")</small>
+    </div>
+    <form asp-action="DeleteRecord" method="post" data-confirm="Удалить запись?">
+        <input name="id" value="@item.Id" type="hidden"/>
+        <button class="ghost small">Удалить</button>
+    </form>
+</div> }
+</section>
+<section class="panel">
+    <h2>Процедуры</h2>
+    @if (!Model.RecoveryRecords.Any()) { <p class="muted">Записей пока нет.</p> }
+    @foreach (var item in Model.RecoveryRecords) { <div class="record-row">
+    <div>
+        <b>@item.Title</b>
+        <small>@item.Start.ToString("dd.MM.yyyy HH:mm") · @item.Value?.ToString("0") мин</small>
+    </div>
+    <form asp-action="DeleteRecord" method="post" data-confirm="Удалить запись?">
+        <input name="id" value="@item.Id" type="hidden"/>
+        <button class="ghost small">Удалить</button>
+    </form>
+</div> }
+</section>

@@ -1,0 +1,74 @@
+@model WorkoutRunVm
+@{
+    ViewData["Title"]=Model.Workout.Title;
+    var w=Model.Workout;
+}
+<div class="page-head">
+    <div>
+        <a class="back" asp-action="History">← Все тренировки</a>
+        <h1>@w.Title</h1>
+        <p>@w.Start.ToString("dd.MM.yyyy HH:mm") · @Model.StatusText · @(w.Value?.ToString("0")??"—") мин</p>
+    </div>
+</div>
+<section class="panel">
+    <p>@w.Comment</p>
+    <div class="info-grid">
+        <div>
+            <small>Источник</small>
+            <b>@(w.ProgramItemId.HasValue?"Программа":"Своя тренировка")</b>
+        </div>
+        <div>
+            <small>Цель пользователя</small>
+            <b>@(ViewBag.Goal??"Не указана")</b>
+        </div>
+        <div>
+            <small>Уровень пользователя</small>
+            <b>@(ViewBag.Level??"Не указан")</b>
+        </div>
+    </div>
+    <div class="actions">
+        <a class="primary" asp-action="AddToDay" asp-route-id="@w.Id">Добавить в мой день</a>
+        <a class="ghost" asp-action="EditWorkout" asp-route-id="@w.Id">Редактировать</a>
+        <a class="ghost" asp-action="Run" asp-route-id="@w.Id">Выполнять</a>
+        <form asp-action="DeleteWorkout" method="post" data-confirm="Удалить тренировку и связанные записи дня?">
+            <input type="hidden" name="id" value="@w.Id"/>
+            <button class="danger">Удалить</button>
+        </form>
+    </div>
+</section>
+@foreach(var e in Model.Exercises){
+    <section class="panel">
+        <div class="record-row">
+            <catalog-placeholder class="workout-thumb" kind="Exercises" custom-src="@e.Exercise.Image" alt="@e.Exercise.Name">
+            </catalog-placeholder>
+            <div>
+                <h2>@e.Exercise.Name</h2>
+                <p>@e.Exercise.Technique</p>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Подход</th>
+                        <th>Повторения</th>
+                        <th>Вес, кг</th>
+                        <th>Время, сек</th>
+                        <th>Выполнено</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var s in e.Sets){
+                        <tr>
+                            <td>@s.Number</td>
+                            <td>@s.Reps</td>
+                            <td>@s.WeightKg?.ToString("0.##")</td>
+                            <td>@s.Seconds</td>
+                            <td>@(s.Done?"✓":"—")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}

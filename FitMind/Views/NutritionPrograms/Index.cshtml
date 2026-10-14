@@ -1,0 +1,50 @@
+@model IEnumerable<FitnessProgram>
+@{
+    ViewData["Title"]="Программы питания";
+}
+<div class="page-head">
+    <div>
+        <h1>Программы питания</h1>
+        <p>Готовые программы FitMind с целью по калориям, воде и расписанием приёмов пищи.</p>
+    </div>
+</div>
+<form method="get" class="library-toolbar">
+    <label class="library-search">Поиск<input type="search" name="search" value="@ViewBag.Search" placeholder="Название, цель или описание"/>
+</label>
+<label>Сортировка<select name="sort" onchange="this.form.submit()">
+<option value="calories" selected="@(ViewBag.Sort == "calories")">Сначала менее калорийные</option>
+<option value="calories_desc" selected="@(ViewBag.Sort == "calories_desc")">Сначала более калорийные</option>
+<option value="name" selected="@(ViewBag.Sort == "name")">По названию</option>
+<option value="weeks" selected="@(ViewBag.Sort == "weeks")">По длительности</option>
+</select>
+</label>
+<button class="primary">Найти</button>
+@if(!string.IsNullOrWhiteSpace((string?)ViewBag.Search)){
+    <a class="ghost" asp-action="Index">Сбросить</a>
+}
+</form>
+@if(!Model.Any()){
+    <div class="empty-line">
+        <b>Ничего не найдено</b>
+        <span>Измени поисковый запрос или сбрось фильтр.</span>
+    </div>
+}
+<div class="library-grid">
+    @foreach(var p in Model){
+        <article class="library-card">
+            <catalog-placeholder kind="NutritionPrograms" alt="Иллюстрация раздела «Программы питания»">
+            </catalog-placeholder>
+            <div class="library-card-body">
+                <span class="pill">@p.GoalText</span>
+                <h2>@p.Name</h2>
+                <p>@p.Description</p>
+                <div class="library-meta">
+                    <span>@p.CaloriesPerDay ккал</span>
+                    <span>@p.WaterMl мл воды</span>
+                    <span>@p.Weeks нед.</span>
+                </div>
+                <a class="ghost full" asp-action="Details" asp-route-id="@p.Id">Подробнее</a>
+            </div>
+        </article>
+    }
+</div>
